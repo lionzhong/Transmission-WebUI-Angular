@@ -245,7 +245,10 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
     $app.controller("mainController", ["$scope", "$http", "$q", "$sce", "$timeout", "ajaxService", function($scope, $http, $q, $sce, $timeout, ajaxService) {
 
         //获取session
+        var sesseionErrCount = 0;
+        var errStartTime = "";
         $scope.getSession = function(session) {
+
             //获取session
             ajaxService.getSession(session).then(function(response) {
                 $scope.data.global = response.data.arguments;
@@ -254,8 +257,31 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
                 var temp = "X-Transmission-Session-Id: ";
                 var start = str.indexOf(temp);
                 var end = str.indexOf("<\/code>");
-                $scope.data.session = str.substring((start + (temp.length - 1)), end);
-                $scope.$emit("getSessionDone");
+                if(start !== -1 && end !== -1){
+                    $scope.data.session = str.substring((start + (temp.length - 1)), end);
+                    $scope.$emit("getSessionDone");
+                }else{
+                    //1分钟内连续错误5次则直接停止所有异步请求，并提示
+                    sesseionErrCount += 1;
+                    if(sesseionErrCount === 1){
+                        errStartTime = new Date().getTime();
+                    }else if(sesseionErrCount === 5){
+                        var now = new Date().getTime();
+                        if((errStartTime - now) <= 60000){
+                            $scope.modal.show({
+                                type:"waring",
+                                content:"一分钟内请求Session失败次数过多，请检查网络或点击确定重新加载！",
+                                size:"small",
+                                btnType : 2,
+                                submitFunc : function () {
+
+                                }
+                            });
+                        }else{
+                            sesseionErrCount = 0;
+                        }
+                    }
+                }
             });
         };
 
@@ -348,8 +374,8 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
             left: function() {
 
                 if($scope.modal.status === true){
-
-                };
+                    return false;
+                }
 
                 var w = $(window).width();
                 if (w <= 1024) {
@@ -361,6 +387,11 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
                 }
             },
             right: function() {
+
+                if($scope.modal.status === true){
+                    return false;
+                }
+
                 var w = $(window).width();
                 if (w <= 1024) {
                     if ($scope.consolePanel.status === false && $scope.detail.status === true) {
@@ -722,8 +753,16 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
             "submitFunc":function () {
                 $scope.modal.close();
             },
-            "show":function () {
+            "show":function (op) {
                 var className = "alpha";
+
+                if(op !== undefined){
+                    _.each(op,function (value,key) {
+                        if(key !== "show" && key !== "close"){
+                            $scope.modal[key] = value;
+                        }
+                    });
+                }
 
                 $scope.modal.status = $scope.modal.status !== true;
                 $timeout(function () {
@@ -767,7 +806,12 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
                     "torrent": {},
                     "activeTorrent": {},
                     "detail": {},
-                    "fullDetail": {}
+                    "fullDetail": {},
+                    "sessionStats":{},
+                    "session":{},
+                    "remove":{},
+                    "add":{},
+                    "pause":{}
                 }
             };
 
