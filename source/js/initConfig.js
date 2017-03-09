@@ -742,6 +742,10 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
             }
         };
 
+        $(document).click(function () {
+            $scope.modal.close();
+        });
+
         $scope.init = function() {
 
             $scope.loopFragment = {

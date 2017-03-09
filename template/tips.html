@@ -1,4 +1,4 @@
-<div id="modal-bg" class="modal-bg" ng-class="{'modal-show':modal.status}" ng-click="model.close()"></div>
+<div id="modal-bg" class="modal-bg" ng-class="{'modal-show':modal.status}"></div>
 <div id="modal" class="modal" ng-class="{'modal-show':modal.status,'tip':modal.type === 'tip','waring':modal.type === 'waring','add':modal.type === 'add','size-big':modal.size === 'big','size-small':modal.size === 'small','size-window':modal.size === 'window'}" ng-click="$event.stopPropagation();">
     <div class="title" ng-if="modal.isNeedTitle === true">{{modal.title}}</div>
     <div class="content">
