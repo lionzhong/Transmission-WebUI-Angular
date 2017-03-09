@@ -1,0 +1,12 @@
+html,body{
+  width: 100%;
+  overflow: hidden;
+}
+
+.clearfix {
+  @include clearfix();
+}
+
+.bg-no-repeat{
+  background: no-repeat 0 0;
+}

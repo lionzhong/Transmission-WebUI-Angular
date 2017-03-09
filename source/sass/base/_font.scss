@@ -1,0 +1,117 @@
+@font-face {
+    font-family: 'transmission';
+    src:  url('../fonts/transmission.eot?s7bi7e');
+    src:  url('../fonts/transmission.eot?s7bi7e#iefix') format('embedded-opentype'),
+    url('../fonts/transmission.ttf?s7bi7e') format('truetype'),
+    url('../fonts/transmission.woff?s7bi7e') format('woff'),
+    url('../fonts/transmission.svg?s7bi7e#transmission') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+    /* use !important to prevent issues with browser extensions that change fonts */
+    font-family: 'transmission' !important;
+    speak: none;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+
+    /* Better Font Rendering =========== */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-add:before {
+    content: "\e900";
+}
+.icon-checklist:before {
+    content: "\e901";
+}
+.icon-close:before {
+    content: "\e902";
+}
+.icon-config:before {
+    content: "\e903";
+}
+.icon-data_usage:before {
+    content: "\e904";
+}
+.icon-delete:before {
+    content: "\e905";
+}
+.icon-detele-all:before {
+    content: "\e906";
+}
+.icon-download:before {
+    content: "\e907";
+}
+.icon-drag_handle:before {
+    content: "\e908";
+}
+.icon-expand_less:before {
+    content: "\e909";
+}
+.icon-expand_more:before {
+    content: "\e90a";
+}
+.icon-goat:before {
+    content: "\e90b";
+}
+.icon-info-black:before {
+    content: "\e90c";
+}
+.icon-info-light:before {
+    content: "\e90d";
+}
+.icon-list:before {
+    content: "\e90e";
+}
+.icon-listview:before {
+    content: "\e90f";
+}
+.icon-lock:before {
+    content: "\e910";
+}
+.icon-menu:before {
+    content: "\e911";
+}
+.icon-pause-all-light:before {
+    content: "\e912";
+}
+.icon-pause-deep:before {
+    content: "\e913";
+}
+.icon-pause-light:before {
+    content: "\e914";
+}
+.icon-people:before {
+    content: "\e915";
+}
+.icon-scheduled:before {
+    content: "\e916";
+}
+.icon-server:before {
+    content: "\e917";
+}
+.icon-settings:before {
+    content: "\e918";
+}
+.icon-start-all-light:before {
+    content: "\e919";
+}
+.icon-start-deep:before {
+    content: "\e91a";
+}
+.icon-start-light:before {
+    content: "\e91b";
+}
+.icon-timer:before {
+    content: "\e91c";
+}
+.icon-upload:before {
+    content: "\e91d";
+}
+

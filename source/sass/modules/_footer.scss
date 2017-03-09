@@ -1,0 +1,42 @@
+.footer{
+  @extend .header;
+  background-color: transparent;
+  position: fixed;
+  top: 15px;
+  bottom: auto;
+  left: auto;
+  right: 15px;
+  box-shadow:none;
+  z-index: 13;
+  >[class^="icon-"], >[class*=" icon-"]{
+    font-size: ceil($font-size-large*1.8);
+    margin-left: 5px;
+    &.selected{
+      color: lighten($prime-blue,50%);
+      background-color: $prime-blue;
+    }
+  }
+  @media (max-width: 1024px) {
+    box-shadow: 5px 0 25px rgba(0,0,0,0.25);
+    background-color: $gray-20;
+    //@include border("border-top");
+    padding: 0;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: auto;
+    text-align: center;
+    >[class^="icon-"], >[class*=" icon-"]{
+      padding: 10px 0;
+      border-radius: 0;
+      margin: 0;
+      color: lighten($prime-blue,25%);
+      width: 25%;
+      &:hover,&.selected{
+        color: $gray-100;
+        background-color: lighten($gray-0,25%);
+      }
+    }
+  }
+}

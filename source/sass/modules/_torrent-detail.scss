@@ -1,0 +1,277 @@
+.torrent-detail{
+  position: fixed;
+  z-index: 10;
+  top: 56px;
+  right: -595px;
+  bottom:0;
+  background-color: rgba(51,51,51,0.85);
+  //opacity: 0;
+  width: 570px;
+  @include css3("transition",all 0.5s);
+  box-shadow: 0 5px 25px rgba(0,0,0,0.25);
+  &.show{
+    right: 0;
+    //opacity: 1;
+    box-shadow: -5px 0 20px rgba(51,51,51,0.75);
+  }
+  @media (max-width: 1024px) {
+    //top: 48px;
+    top: 0;
+    bottom: 46px;
+    right: -100%;
+    width: 100%;
+    background-color: rgba(51,51,51,1);
+    z-index: 12;
+    box-shadow: -5px 5px 25px rgba(0,0,0,0.25);
+    &.show{
+      right: 0;
+      //opacity: 1;
+      box-shadow: -5px 5px 25px rgba(0,0,0,0.25);
+    }
+  }
+  >.icon-close{
+    color: $gray-100;
+    cursor: pointer;
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    padding: 3px;
+    @include border("border");
+    @include css3("transition",all 0.3s);
+    &:hover{
+      color: $gray-30;
+      background-color: rgba(255,255,255,0.95);
+    }
+    @media (max-width: 1024px) {
+      display: none;
+    }
+  }
+  >h2{
+    @include yahei;
+    font-size: ceil($font-size-large*1.58);
+    height: ceil($font-size-large*1.78);
+    color: $gray-100;
+    margin-bottom: 20px;
+    word-break: keep-all;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    padding: 0 50px;
+    @media (max-width: 1024px) {
+      font-size: ceil($font-size-large*1.2);
+      height: ceil($font-size-large*1.35);
+    }
+  }
+  >ul{
+    text-align: center;
+    margin: 20px auto;
+    width: 200px;
+    @extend .clearfix;
+    @include border("border-bottom");
+    >li{
+      width: 25%;
+      float: left;
+      cursor: pointer;
+      padding-bottom: 10px;
+      position: relative;
+      top: 1px;
+      @include border("border-bottom");
+      @include css3("transition",all 0.3s);
+      >span{
+        border-radius: ceil($font-size-large*2.2);
+        font-size: ceil($font-size-large*1.58);
+        margin:0;
+        color: $gray-70;
+        &:hover{
+          color: $gray-100;
+        }
+      }
+      &.selected{
+        @include border("border-bottom",1px,$prime-blue);
+        >span{
+          color: $gray-100;
+          background-color: $prime-blue;
+        }
+      }
+    }
+  }
+}
+.deail-contents{
+  color: lighten($gray-0,75%);
+  padding: 0 50px;
+  font-size: $font-size-large;
+  position: absolute;
+  top: 119px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: auto;
+  &.mobile-peer{
+    @media (max-width: 1024px) {
+      padding: 0 20px;
+    }
+  }
+  >h3{
+    font-size: $font-size-large;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  .table{
+    margin-bottom: 20px;
+    >table{
+      width: 100%;
+      th{
+        width: 120px;
+        text-align: left;
+      }
+      th,td{
+        font-size: $font-size-base;
+        padding: 8px;
+        word-break: break-all;
+        word-wrap: break-word;
+      }
+    }
+    &.mobile {
+      @media (max-width: 1024px) {
+        >table,>table tbody,>table tr,>table th,>table td{
+          display: block;
+        }
+      }
+    }
+    &.mobile-peer-table{
+      @media (max-width: 1024px) {
+        >table{
+          th,td{
+            font-size: $font-size-base;
+            padding: 8px 0;
+            word-break: keep-all;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 0;
+          }
+          tr.gray{
+            background-color: lighten($gray-0,30%);
+          }
+        }
+      }
+    }
+  }
+  >.peer-list{
+    >li{
+      margin-bottom: 30px;
+      >h3{
+        font-weight: bold;
+        color: $gray-100;
+        position: relative;
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+        @include border("border-bottom",1px,lighten($gray-0,35%));
+        >i{
+          font-weight: normal;
+          color: $gray-60;
+          position: absolute;
+          top: 0;
+          right: 0;
+        }
+      }
+      >div{
+        position: relative;
+        >div{
+          position: absolute;
+          top: 0;
+          right: 0;
+        }
+      }
+    }
+  }
+  >.tracker-list{
+    >li{
+      margin-bottom: 20px;
+      padding-bottom: 20px;
+      @include border("border-bottom",1px,lighten($gray-0,35%));
+      >h3{
+        font-size: $font-size-large;
+        font-weight: bold;
+        color: $gray-100;
+        line-height: 24px;
+        margin-bottom: 15px;
+        >i{
+          font-size: $font-size-base;
+          color: $gray-50;
+        }
+      }
+      >div{
+        position: relative;
+        >i,>span{
+          font-size: 13px;
+          line-height: 24px;
+        }
+        >i{
+          position: absolute;
+          right: 0;
+          top: 0;
+        }
+        >span{
+          display: inline-block;
+          @media (max-width: 1024px) {
+            width: 330px;
+            word-break: keep-all;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 0;
+          }
+        }
+      }
+      &.gray{
+        background-color: lighten($gray-0,30%);
+      }
+    }
+  }
+  >.file-list{
+    >li{
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+      @include border("border-bottom",1px,lighten($gray-0,35%));
+    }
+    .name{
+      line-height: 24px;
+      word-break: break-all;
+      white-space: normal;
+    }
+    .size{
+      @extend .clearfix;
+      color: $gray-100;
+      line-height: 24px;
+      font-weight: bold;
+      margin-bottom: 5px;
+      .trigger{
+        display: inline-block;
+        float: right;
+        >span{
+          display: inline-block;
+          background-color: $gray-40;
+          @include css3("transition",all 0.3s);
+          font-size: ceil($font-size-large*1.28);
+          cursor: pointer;
+          padding: 3px;
+          &:hover{
+            background-color: lighten($gray-0,50%);
+          }
+          &.selected{
+            color: $gray-0;
+            background-color: $gray-100;
+          }
+          &:first-child{
+            border-radius: 5px 0 0 5px;
+          }
+          &:last-child{
+            border-radius: 0 5px 5px 0;
+          }
+        }
+      }
+    }
+  }
+}
