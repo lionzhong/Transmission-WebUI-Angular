@@ -753,7 +753,8 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
             "submitFunc":function () {
                 $scope.modal.close();
             },
-            "show":function (op) {
+            "show":function ($event,op) {
+                $event.stopPropagation();
                 var className = "alpha";
 
                 if(op !== undefined){
@@ -782,7 +783,9 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
         };
 
         $(document).click(function () {
-            $scope.modal.close();
+            if($scope.modal.status === true){
+                $scope.modal.close();
+            }
         });
 
         $scope.init = function() {
