@@ -8,7 +8,7 @@
 </head>
 <body ng-controller="mainController" style="touch-action: none;" ng-swipe-left="swip.left()" ng-swipe-right="swip.right()">
 <div class="header mobile" ng-class="{'mobile-show':consolePanel.status}">
-    <span class="logo">
+    <span class="logo" ng-click="modal.show()">
         <span class="logo-img"></span>
         Transmission
     </span>
@@ -57,7 +57,7 @@
 <div class="footer">
     <span class="icon-settings"></span><span class="icon-scheduled"></span><span class="icon-listview"></span><span class="icon-info-black" ng-class="{'selected':detailShow}" ng-click="detail.show()"></span>
 </div>
-<div ng-include src="modalUrl" class="modal" ng-if="modalUrl!== ''"></div>
+<div ng-include src="tmpUrl.modal" class="modal" ng-if="tmpUrl.modal !== ''" include-replace></div>
 <script src="libs/requirejs/require.min.js"  data-main="load.js"></script>
 </body>
 </html>

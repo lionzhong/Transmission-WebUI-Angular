@@ -242,7 +242,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
         return service;
     }]);
 
-    $app.controller("mainController", ["$scope", "$http", "$q", "$sce", "ajaxService", function($scope, $http, $q, $sce, ajaxService) {
+    $app.controller("mainController", ["$scope", "$http", "$q", "$sce", "$timeout", "ajaxService", function($scope, $http, $q, $sce, $timeout, ajaxService) {
 
         //获取session
         $scope.getSession = function(session) {
@@ -346,6 +346,11 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
         //滑动操作
         $scope.swip = {
             left: function() {
+
+                if($scope.modal.status === true){
+
+                };
+
                 var w = $(window).width();
                 if (w <= 1024) {
                     if ($scope.consolePanel.status === false && $scope.detail.status === false) {
@@ -702,6 +707,41 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
             }
         };
 
+        $scope.modal = {
+            "status":false,
+            "isNeedTitle":false,
+            "type":"add",//tip,waring,delete,add,window
+            "size":"big",
+            "title":"测试标题",
+            "content":"添加传输任务失败！",
+            "btnType":2,//0 只有确定按钮，1 只有取消按钮，2 两个都有
+            "btnText":{
+                "submit":"确定",
+                "cancel":"关闭"
+            },
+            "submitFunc":function () {
+                $scope.modal.close();
+            },
+            "show":function () {
+                var className = "alpha";
+
+                $scope.modal.status = $scope.modal.status !== true;
+                $timeout(function () {
+                    $("#modal-bg").addClass(className);
+                    $("#modal").addClass(className);
+                },100);
+            },
+            "close":function () {
+                var className = "alpha";
+
+                $("#modal-bg").removeClass(className);
+                $("#modal").removeClass(className);
+                $timeout(function () {
+                    $scope.modal.status = false;
+                },550);
+            }
+        };
+
         $scope.init = function() {
 
             $scope.loopFragment = {
@@ -783,12 +823,9 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
                 detail: "template/detail.html",
                 blankDetail: "template/blankdetail.html",
                 tips: "template/tips.html",
-                settings: "template/settings.html"
+                settings: "template/settings.html",
+                modal:"template/tips.html"
             };
-
-            $scope.mobileMode = false;
-
-            $scope.modalUrl = "";
 
             document.addEventListener('touchstart', function(event) {
                 // 判断默认行为是否可以被禁用
@@ -805,6 +842,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
 
     }]);
 
+    //inlclude 直接用被嵌套的HTML替换include所在的标签
     $app.directive('includeReplace', function() {
         return {
             require: 'ngInclude',

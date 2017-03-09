@@ -1,4 +1,12 @@
-<div class="body">
-    <div class="content">提示内容</div>
-    <div class="btn">确定</div>
+<div id="modal-bg" class="modal-bg" ng-class="{'modal-show':modal.status}" ng-click="model.close()"></div>
+<div id="modal" class="modal" ng-class="{'modal-show':modal.status,'tip':modal.type === 'tip','waring':modal.type === 'waring','add':modal.type === 'add','size-big':modal.size === 'big','size-small':modal.size === 'small','size-window':modal.size === 'window'}" ng-click="$event.stopPropagation();">
+    <div class="title" ng-if="modal.isNeedTitle === true">{{modal.title}}</div>
+    <div class="content">
+        <span class="icon" ng-class="{'icon-goat':modal.type === 'tip','icon-detele-all':modal.type === 'waring','icon-add':modal.type === 'add'}"></span>
+        <div>{{modal.content}}</div>
+    </div>
+    <div class="btn-row" ng-class="{'display-cancel-btn':modal.btnType === 0,'display-submit-btn':modal.btnType === 1,'display-all-btn':modal.btnType === 2}">
+        <div class="cancel" ng-if="modal.btnType === 1 || modal.btnType === 2" ng-click="modal.submitFunc()">{{modal.btnText.cancel}}</div>
+        <div class="submit" ng-if="modal.btnType === 0 || modal.btnType === 2" ng-click="modal.submitFunc()">{{modal.btnText.submit}}</div>
+    </div>
 </div>

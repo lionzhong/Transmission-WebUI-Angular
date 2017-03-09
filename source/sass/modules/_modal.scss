@@ -1,0 +1,170 @@
+.modal-bg{
+  position: fixed;
+  z-index: 20;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: $gray-0;
+  display: none;
+  opacity: 0;
+  @include css3("transition",all 0.5s);
+  &.modal-show{
+    display: block;
+  }
+  &.alpha{
+    opacity: 0.5;
+  }
+}
+.modal{
+  background-color: $gray-0;
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  z-index: 21;
+  opacity: 0;
+  display: none;
+  @include css3("transition",all 0.5s);
+  box-shadow: 0 0 25px rgba(0,0,0,0.5);
+  color: $gray-70;
+  border-radius: 10px;
+  box-sizing: border-box;
+  padding: 20px;
+  &.modal-show{
+    display: block;
+  }
+  &.alpha{
+    opacity: 1;
+  }
+  >.content{
+    box-sizing: border-box;
+    position: absolute;
+    z-index: 22;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    bottom: 78px;
+    padding: 0 15px;
+    @include clearfix;
+    >.icon{
+      float: left;
+      display: block;
+      font-size: ceil($font-size-large*5.5);
+    }
+    >div{
+      position: absolute;
+      color: $gray-100;
+      top: 10px;
+      right: 0;
+      bottom: 0;
+      text-align: left;
+      left: 120px;
+    }
+  }
+  &.size-big,&.size-small{
+    @media (max-width: 1024px) {
+
+    }
+  }
+  &.size-big,&.size-window{
+    width: 500px;
+    height: 300px;
+    margin: -150px 0 0 -250px;
+    @media (max-width: 1024px) {
+      width: 90%;
+      height: 60%;
+      margin: -30% 0 0 -45%;
+      >.content{
+        >.icon{
+          float: none;
+          text-align: center;
+        }
+        >div{
+          top: 97px;
+          left: 20px;
+        }
+      }
+    }
+  }
+  &.size-small{
+    width: 400px;
+    height: 180px;
+    margin: -90px 0 0 -200px;
+    @media (max-width: 1024px) {
+      top: 40%;
+      width: 90%;
+      margin: -20% 0 0 -45%;
+    }
+  }
+  &.size-window{
+    @media (max-width: 1024px) {
+      top: 5%;
+      left: 5%;
+      width: 90%;
+      height: 90%;
+      margin: 0 ;
+    }
+  }
+//"type":"tip",//tip,waring,upload,delete,add
+  &.info,&.add,&.upload{
+    >.content{
+      >.icon{
+        color: $prime-green;
+      }
+    }
+  }
+  &.waring{
+    >.content{
+      >.icon{
+        color: $prime-red;
+      }
+    }
+  }
+  >.btn-row{
+    position: absolute;
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+    z-index: 22;
+    >div{
+      background-color: $gray-100;
+      color: $gray-0;
+      text-align: center;
+      cursor: pointer;
+      font-size: ceil($font-size-large*1.28);
+      padding: 10px 0;
+      border-radius: 5px;
+      position: relative;
+      @include css3("transition",all 0.3s);
+      &:hover{
+        background-color: $prime-blue;
+        color: $gray-100;
+      }
+    }
+    &.display-submit-btn,&.display-cancel-btn{
+      >div{
+
+      }
+    }
+    &.display-all-btn{
+      @include clearfix;
+      >div{
+        float: left;
+        width: 50%;
+        &.submit{
+          border-radius: 0 5px 5px 0;
+          margin-left: -1px;
+          z-index: 1;
+          &:hover{
+            background-color: $prime-red;
+          }
+        }
+        &.cancel{
+          z-index: 2;
+          border-radius: 5px 0 0 5px;
+          @include border("border-right");
+        }
+      }
+    }
+  }
+}
