@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>AngularJS DEMO</title>
+    <link rel="stylesheet" href="dist/css/transmission.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body ng-controller="mainController" style="touch-action: none;" ng-swipe-left="swip.left()" ng-swipe-right="swip.right()">
+<div class="header mobile" ng-class="{'mobile-show':consolePanel.status}">
+    <span class="logo">
+        <span class="logo-img"></span>
+        Transmission
+    </span>
+    <span class="icon-add">
+        <i>添加任务</i>
+    </span>
+    <span class="icon-delete" ng-class="{'disabled':data.selectedIndex === ''}" ng-click="removeFromList([data.torrent[data.selectedIndex].id])">
+        <i>从列表中删除</i>
+    </span>
+    <span class="icon-start-light" ng-class="{'disabled':data.selectedIndex === ''}" ng-click="startTransform([data.torrent[data.selectedIndex].id])">
+        <i>开始</i>
+    </span>
+    <span class="icon-pause-light" ng-class="{'disabled':data.selectedIndex === ''}" ng-click="pauseTransform([data.torrent[data.selectedIndex].id])">
+        <i>暂停</i>
+    </span>
+    <span class="icon-start-all-light" ng-class="{'disabled':data.torrent.length === 0}" ng-click="startTransform(data.ids)">
+        <i>开始所有任务</i>
+    </span>
+    <span class="icon-pause-all-light" ng-class="{'disabled':data.torrent.length === 0}" ng-click="pauseTransform(data.ids)">
+        <i>暂停所有任务</i>
+    </span>
+</div>
+<ul id="torrent-list" class="torrent-list">
+    <li ng-repeat="item in data.torrent track by $index" ng-class="parsTorrentClassName(item.status,$index)" ng-click="selectTorrent($index)">
+        <div class="name">{{item.name}}</div>
+        <div class="status" ng-bind-html="parseText.Status($index)"></div>
+        <div class="progess-bar">
+            <div ng-style="{'width':item.percentDone < 1 ? item.percentDone * 100 + '%':100 + '%'}"></div>
+        </div>
+        <div class="transform-data" ng-bind-html="parseText.TransformData($index)"></div>
+    </li>
+</ul>
+<div id="torrent-detail" class="torrent-detail" ng-class="{'show':detail.status}">
+    <span class="icon-close" ng-click="detail.close()"></span>
+    <ul>
+        <li ng-repeat="item in detail.tabNames track by $index" ng-class="{'selected':detail.selectedTabIndex === $index}" ng-click="detail.tabSelect($index)">
+            <span ng-if="$index === 0" class="icon-info-light"></span>
+            <span ng-if="$index === 1" class="icon-people"></span>
+            <span ng-if="$index === 2" class="icon-server"></span>
+            <span ng-if="$index === 3" class="icon-checklist"></span>
+        </li>
+    </ul>
+    <div ng-include src="tmpUrl.blankDetail" ng-if="data.selectedIndex === ''" include-replace></div>
+    <div ng-include src="tmpUrl.detail" ng-if="data.selectedIndex !== ''" include-replace></div>
+</div>
+<div class="footer">
+    <span class="icon-settings"></span><span class="icon-scheduled"></span><span class="icon-listview"></span><span class="icon-info-black" ng-class="{'selected':detailShow}" ng-click="detail.show()"></span>
+</div>
+<div ng-include src="modalUrl" class="modal" ng-if="modalUrl!== ''"></div>
+<script src="libs/requirejs/require.min.js"  data-main="load.js"></script>
+</body>
+</html>
