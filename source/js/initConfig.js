@@ -911,7 +911,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
             };
 
             //load local data
-            $scope.localMode = true;
+            $scope.localMode = false;
 
             if ($scope.localMode === true) {
                 var deferred = $q.defer();
