@@ -251,14 +251,14 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
 
             //获取session
             ajaxService.getSession(session).then(function(response) {
-                $scope.data.global = response.data.arguments;
+                $scope.dataStorage.global = response.data.arguments;
             }, function(reason) {
                 var str = reason.response.data;
                 var temp = "X-Transmission-Session-Id: ";
                 var start = str.indexOf(temp);
                 var end = str.indexOf("<\/code>");
                 if(start !== -1 && end !== -1){
-                    $scope.data.session = str.substring((start + (temp.length - 1)), end);
+                    $scope.dataStorage.session = str.substring((start + (temp.length - 1)), end);
                     $scope.$emit("getSessionDone");
                 }else{
                     //1分钟内连续错误5次则直接停止所有异步请求，并提示
@@ -288,8 +288,10 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
         //获取现在的状态
         $scope.getStatsData = function() {
             //获取session
-            ajaxService.getSessionStats($scope.data.session).then(function(response) {
-                $scope.data.stats = response.data.arguments;
+            ajaxService.getSessionStats($scope.dataStorage.session).then(function(response) {
+                $scope.dataStorage.stats = response.data.arguments;
+                $scope.dataStorage.totalSpeed.download = $scope.dataStorage.stats.downloadSpeed;
+                $scope.dataStorage.totalSpeed.upload = $scope.dataStorage.stats.uploadSpeed;
                 $scope.$emit("getStatsDone");
             }, function(reason) {
                 console.log("查询stats失败");
@@ -299,18 +301,19 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
         //获取正在活动的Torrent数据
         $scope.getRecentlyActiveTorrentData = function() {
             //获取活动中的torrent数据
-            $scope.pool.ajax.activeTorrent = ajaxService.getActiveTorrent($scope.data.session);
+            $scope.pool.ajax.activeTorrent = ajaxService.getActiveTorrent($scope.dataStorage.session);
             $scope.pool.ajax.activeTorrent.promise.then(function(response) {
                 //替换数据列表中对应的数据
                 _.each(response.data.arguments.torrents, function(value, index) {
-                    var $index = _.findIndex($scope.data.torrent, function(o) {
+                    var $index = _.findIndex($scope.dataStorage.torrent, function(o) {
                         return o.id === value.id;
                     });
 
                     if ($index > -1) {
-                        _.merge($scope.data.torrent[$index], value);
+                        _.merge($scope.dataStorage.torrent[$index], value);
                     }
                 });
+                $scope.getTotalSpeed();
             }, function(reason) {
                 console.log("查询Torrent失败");
             });
@@ -318,24 +321,25 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
 
         //排序种子数据
         $scope.sortTorrentData = function() {
-            $scope.data.torrent = _.sortBy($scope.data.torrent, function(item) {
+            $scope.dataStorage.torrent = _.sortBy($scope.dataStorage.torrent, function(item) {
                 return -item.addedDate;
             });
-            return $scope.data.torrent;
+            $scope.getTotalSpeed();
+            return $scope.dataStorage.torrent;
         };
 
         //循环获取种子数据
         $scope.loopGetTorrentData = function() {
             //get all torrent(list)
-            $scope.pool.ajax.torrent = ajaxService.getTorrent($scope.data.session);
+            $scope.pool.ajax.torrent = ajaxService.getTorrent($scope.dataStorage.session);
             $scope.pool.ajax.torrent.promise.then(function(response) {
-                $scope.data.torrent = _.sortBy(response.data.arguments.torrents, function(item) {
+                $scope.dataStorage.torrent = _.sortBy(response.data.arguments.torrents, function(item) {
                     return -item.addedDate;
                 });
 
-                $scope.data.ids = [];
-                _.each($scope.data.torrent, function(obj, index) {
-                    $scope.data.ids.push(obj.id);
+                $scope.dataStorage.ids = [];
+                _.each($scope.dataStorage.torrent, function(obj, index) {
+                    $scope.dataStorage.ids.push(obj.id);
                 });
 
                 //loop the active torrent
@@ -350,19 +354,19 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
 
         //循环获取session数据
         $scope.loopGetSessionData = function() {
-            $scope.getSession($scope.data.session);
+            $scope.getSession($scope.dataStorage.session);
             $scope.pool.loop.torrent = setInterval(function() {
-                $scope.getSession($scope.data.session);
+                $scope.getSession($scope.dataStorage.session);
             }, $scope.loopFragment.session);
         };
 
         //选择某下载任务
         $scope.selectTorrent = function(index) {
-            if (index === $scope.data.selectedIndex) {
+            if (index === $scope.dataStorage.selectedIndex) {
                 return false;
             }
 
-            $scope.data.selectedIndex = index;
+            $scope.dataStorage.selectedIndex = index;
             if ($scope.detail.status === true) {
                 $scope.detail.close();
                 $scope.detail.show();
@@ -377,8 +381,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
                     return false;
                 }
 
-                var w = $(window).width();
-                if (w <= 1024) {
+                if ($scope.getScreenWidth() <= 1024) {
                     if ($scope.consolePanel.status === false && $scope.detail.status === false) {
                         $scope.detail.show();
                     } else if ($scope.consolePanel.status === true && $scope.detail.status === false) {
@@ -392,8 +395,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
                     return false;
                 }
 
-                var w = $(window).width();
-                if (w <= 1024) {
+                if ($scope.getScreenWidth() <= 1024) {
                     if ($scope.consolePanel.status === false && $scope.detail.status === true) {
                         $scope.detail.close();
                     } else if ($scope.consolePanel.status === false && $scope.detail.status === false) {
@@ -435,7 +437,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
                     className = "seeding";
                     break;
             }
-            if (index === $scope.data.selectedIndex) {
+            if (index === $scope.dataStorage.selectedIndex) {
                 className += " selected";
             }
             return className;
@@ -493,7 +495,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
         //解析torrent列表文字
         $scope.parseText = {
             "Status": function(index) {
-                var data = $scope.data.torrent[index];
+                var data = $scope.dataStorage.torrent[index];
                 var html = "";
 
                 switch (data.status) {
@@ -526,7 +528,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
                 return $sce.trustAsHtml(html);
             },
             "TransformData": function(index) {
-                var data = $scope.data.torrent[index];
+                var data = $scope.dataStorage.torrent[index];
                 var html = "";
 
                 switch (data.status) {
@@ -567,9 +569,11 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
                                 html += $scope.bytesConvert(data.uploadedEver);
                                 html += "</span>";
                             }
-                            html += "<span>";
-                            html += "预估剩余时间：" + $scope.parseEta(data.eta);
-                            html += "</span>";
+                            if ($scope.getScreenWidth() > 1024) {
+                                html += "<span>";
+                                html += "预估剩余时间：" + $scope.parseEta(data.eta);
+                                html += "</span>";
+                            }
                         }
                         break;
                     case 6:
@@ -581,9 +585,11 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
                         html += "<span>";
                         html += "分享率(" + tr.parseFloat2(data.uploadRatio) + "%)";
                         html += "</span>";
-                        html += "<span>";
-                        html += "预估剩余时间：" + $scope.parseEta(data.eta);
-                        html += "</span>";
+                        if ($scope.getScreenWidth() > 1024) {
+                            html += "<span>";
+                            html += "预估剩余时间：" + $scope.parseEta(data.eta);
+                            html += "</span>";
+                        }
                         break;
                     default:
                         // className = "seeding";
@@ -609,15 +615,15 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
                 $scope.detail.status = $scope.detail.status !== true;
 
                 if ($scope.detail.status === true) {
-                    if ($scope.data.selectedIndex !== '') {
-                        $scope.detail.torrentData = $scope.data.torrent[$scope.data.selectedIndex];
-                        $scope.pool.ajax.fullDetail = ajaxService.getFullDetail($scope.data.session, [$scope.data.torrent[$scope.data.selectedIndex].id]);
+                    if ($scope.dataStorage.selectedIndex !== '') {
+                        $scope.detail.torrentData = $scope.dataStorage.torrent[$scope.dataStorage.selectedIndex];
+                        $scope.pool.ajax.fullDetail = ajaxService.getFullDetail($scope.dataStorage.session, [$scope.dataStorage.torrent[$scope.dataStorage.selectedIndex].id]);
                         $scope.pool.ajax.fullDetail.promise.then(function(response) {
-                            $scope.data.detail = response.data.arguments.torrents[0];
+                            $scope.dataStorage.detail = response.data.arguments.torrents[0];
                             $scope.pool.loop.detail = setInterval(function() {
-                                $scope.pool.ajax.detail = ajaxService.getDetail($scope.data.session, [$scope.data.torrent[$scope.data.selectedIndex].id]);
+                                $scope.pool.ajax.detail = ajaxService.getDetail($scope.dataStorage.session, [$scope.dataStorage.torrent[$scope.dataStorage.selectedIndex].id]);
                                 $scope.pool.ajax.detail.promise.then(function($response) {
-                                    $scope.data.detail = _.merge($scope.data.detail, $response.data.arguments.torrents[0]);
+                                    $scope.dataStorage.detail = _.merge($scope.dataStorage.detail, $response.data.arguments.torrents[0]);
                                 }, function(reason) {
                                     console.log("维护明细数据失败");
                                 });
@@ -660,7 +666,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
 
         var validationIDS = function(ids) {
             var result = true;
-            if ($scope.data.torrent.length === 0 || ids === undefined || ids.length === 0 || (ids.length === 1 && ids[0] === undefined)) {
+            if ($scope.dataStorage.torrent.length === 0 || ids === undefined || ids.length === 0 || (ids.length === 1 && ids[0] === undefined)) {
                 result = false;
             }
 
@@ -675,8 +681,8 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
             if (validationIDS(ids) === false) {
                 return false;
             }
-            // $scope.data.session
-            ajaxService.removeFromList($scope.data.session, ids).then(function(response) {
+            // $scope.dataStorage.session
+            ajaxService.removeFromList($scope.dataStorage.session, ids).then(function(response) {
                 $scope.reload.torrent();
             }, function(reason) {
                 console.log("从下载列表中移除失败");
@@ -687,8 +693,8 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
             if (validationIDS(ids) === false) {
                 return false;
             }
-            // $scope.data.session
-            ajaxService.removeAllData($scope.data.session, ids).then(function(response) {
+            // $scope.dataStorage.session
+            ajaxService.removeAllData($scope.dataStorage.session, ids).then(function(response) {
                 $scope.reload.torrent();
             }, function(reason) {
                 console.log("从下载列表中移除失败");
@@ -699,7 +705,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
             if (validationIDS(ids) === false) {
                 return false;
             }
-            ajaxService.pauseTransform($scope.data.session, ids).then(function(response) {
+            ajaxService.pauseTransform($scope.dataStorage.session, ids).then(function(response) {
                 $scope.reload.torrent();
             }, function(reason) {
                 console.log("暂停传输任务请求失败！");
@@ -710,7 +716,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
             if (validationIDS(ids) === false) {
                 return false;
             }
-            ajaxService.startTransform($scope.data.session, ids).then(function(response) {
+            ajaxService.startTransform($scope.dataStorage.session, ids).then(function(response) {
                 $scope.reload.torrent();
             }, function(reason) {
                 console.log("暂停传输任务请求失败！");
@@ -721,7 +727,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
             if (validationIDS(ids) === false) {
                 return false;
             }
-            ajaxService.startTransformNow($scope.data.session, ids).then(function(response) {
+            ajaxService.startTransformNow($scope.dataStorage.session, ids).then(function(response) {
                 $scope.reload.torrent();
             }, function(reason) {
                 console.log("暂停传输任务请求失败！");
@@ -788,6 +794,35 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
             }
         });
 
+        $scope.nav = {
+            status:false,
+            menudata:{
+                name:["设置","计划任务运行","收缩视图","查看传输明细"],
+                className:["icon-settings","icon-scheduled","icon-listview","icon-info-black"]
+            },
+            toggle:function () {
+                $scope.nav.status = $scope.nav.status !== true;
+            },
+            close:function (index) {
+                $scope.nav.status = false;
+            }
+        };
+
+        $scope.getTotalSpeed = function () {
+            var result = {
+                download:0,
+                upload:0
+            };
+
+            _.each($scope.dataStorage.torrent,function (obj,index) {
+                result.download += (obj.rateDownload === undefined || obj.rateDownload === null) ? 0 :obj.rateDownload;
+                result.upload += (obj.rateUpload === undefined || obj.rateUpload === null) ? 0 :obj.rateUpload;
+            });
+
+            $scope.dataStorage.totalSpeed.download = result.download;
+            $scope.dataStorage.totalSpeed.upload = result.upload;
+        };
+
         $scope.init = function() {
 
             $scope.loopFragment = {
@@ -795,6 +830,10 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
                 active: 5000,
                 detail: 5000,
                 session: 15000
+            };
+
+            $scope.getScreenWidth = function () {
+                return $(window).width();
             };
 
             //loop pool
@@ -819,14 +858,19 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
             };
 
             //数据
-            $scope.data = {
+            $scope.dataStorage = {
             	session: "",
                 global: {},
                 torrent: [],
                 selectedIndex: "",
                 stats: {},
                 ids: [],
-                detail: {}
+                detail: {},
+                test:0,
+                totalSpeed:{
+            	    download:0,
+                    upload:0
+                }
             };
 
             //load local data
@@ -848,6 +892,8 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
                         ids: response.ids,
                         detail: response.detail
                     };
+
+                    $scope.getTotalSpeed();
                 }, function(reason) {
 
                 });

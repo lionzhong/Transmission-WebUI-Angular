@@ -38,69 +38,95 @@
 
 .header{
   position: fixed;
-  height: 56px;
   top: 0;
   left: 0;
   right: 0;
   overflow: hidden;
-  background-color: $gray-20;
   box-shadow: 0 5px 25px rgba(0,0,0,0.25);
   z-index: 11;
-  >[class^="icon-"], >[class*=" icon-"]{
-    font-size: ceil($font-size-large*2.2);
-    color: lighten($prime-blue,25%);
-    border-radius: ceil($font-size-large*2.2);
-    @include css3("transition",all 0.3s);
-    &:hover{
-      color: lighten($prime-blue,50%);
-      background-color: $prime-blue;
-    }
-    >i{
-      display: none;
-    }
-    &.disabled{
-      opacity: 0.2;
-      cursor: default;
+  >div{
+    background-color: $gray-20;
+    height: 56px;
+    >[class^="icon-"], >[class*=" icon-"]{
+      font-size: ceil($font-size-large*2.2);
+      color: lighten($prime-blue,25%);
+      border-radius: ceil($font-size-large*2.2);
+      @include css3("transition",all 0.3s);
       &:hover{
-        color: lighten($prime-blue,25%);
-        background-color: transparent;
+        color: lighten($prime-blue,50%);
+        background-color: $prime-blue;
+      }
+      >i{
+        display: none;
+      }
+      &.disabled{
+        opacity: 0.4;
+        cursor: default;
+        &:hover{
+          color: lighten($prime-blue,25%);
+          background-color: transparent;
+        }
       }
     }
-  }
-  >span{
-    display: inline-block;
-    vertical-align: middle;
-    cursor: pointer;
+    >span{
+      display: inline-block;
+      vertical-align: middle;
+      cursor: pointer;
+    }
   }
   &.mobile{
     @media (max-width: 1024px) {
-      height: auto;
-      top: 0;
-      bottom: 46px;
-      left: -50%;
-      width: 50%;
-      box-shadow:5px 0 25px rgba(0,0,0,0.25);
-      @include css3("transition",all 0.5s);
-      >[class^="icon-"], >[class*=" icon-"]{
-        display: block;
-        border-radius: 0;
-        font-size: ceil($font-size-large*1.1);
-        padding: 15px 30px;
-        color: lighten($gray-0,85%);
-        &:before{
-          display: none;
-        }
-        >i{
-          display: inline;
+      height: 100%;
+      left: 0;
+      width: 100%;
+      box-shadow: none;
+      pointer-events: none;
+      &:before{
+        position: absolute;
+        z-index: 14;
+        height: 100%;
+        width: 100%;
+        opacity: 0;
+        background-color: $gray-0;
+        content: "";
+        transition:opacity 0.233s cubic-bezier(0,0,.21,1);
+        will-change:transition;
+      }
+      >div{
+        position: absolute;
+        z-index: 15;
+        height: 100%;
+        width: 70%;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.25);
+        background-color: $gray-100;
+        left: -70%;
+        @include css3("transition",left 0.23s);
+        will-change: transition,left;
+        >[class^="icon-"], >[class*=" icon-"]{
+          display: block;
+          border-radius: 0;
+          font-size: ceil($font-size-large);
+          padding: 15px 30px;
+          color: lighten($gray-0,25%);
+          &:before{
+            display: none;
+          }
+          >i{
+            display: inline;
+          }
         }
       }
     }
   }
   &.mobile-show{
     @media (max-width: 1024px) {
+      pointer-events: auto;
       left: 0;
-      >[class^="icon-"], >[class*=" icon-"]{
-
+      >div{
+        left: 0;
+      }
+      &:before{
+        opacity:0.35;
       }
     }
   }

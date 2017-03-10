@@ -1,0 +1,119 @@
+.nav{
+  background-color: transparent;
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  box-shadow:none;
+  z-index: 9;
+  width: 300px;
+  >[class^="icon-"], >[class*=" icon-"]{
+    position: absolute;
+    top: 0;
+    right: 0;
+    cursor: pointer;
+    color: lighten($prime-blue,25%);
+    font-size: ceil($font-size-large*1.8);
+    transition: color 0.233s;
+    will-change: trasition;
+    &:hover{
+      color: lighten($prime-blue,50%);
+    }
+  }
+  >p{
+    color: $gray-70;
+    position: absolute;
+    top: 2px;
+    right: ceil($font-size-large*1.8 + 10);
+    line-height: 26px;
+    font-size: $font-size-large;
+  }
+  >ul{
+    border-radius: 5px;
+    box-shadow: 0 0 25px rgba(0,0,0,0.5);
+    position: absolute;
+    right: 0;
+    top: 30px;
+    height: 0;
+    overflow: hidden;
+    transition:height 0.233s,top 0.233s;
+    will-change: transtion;
+    >li{
+      cursor: pointer;
+      color: $gray-70;
+      padding: 14px 18px;
+      line-height: 16px;
+      font-size: 16px;
+      background-color: rgba(0,0,0,0.5);
+      transition: color 0.233s,background-color 0.233s;
+      will-change: trasition;
+      >span{
+        margin-right: 15px;
+        line-height: 16px;
+        font-size: 16px;
+      }
+      &:hover{
+        background-color: $gray-100;
+        color: $gray-30;
+      }
+      &:first-child{
+        border-radius: 5px 5px 0 0;
+      }
+      &:last-child{
+        border-radius: 0 0 5px 5px;
+      }
+    }
+  }
+  &.nav-menu{
+    >[class^="icon-"], >[class*=" icon-"]{
+      color: lighten($prime-blue,50%);
+    }
+    >ul{
+      top: 40px;
+      height: 186px;
+    }
+  }
+  @media (max-width: 1024px) {
+    width: 100%;
+    top: 0;
+    left: inherit;
+    right: inherit;
+    height: 47px;
+    background-color: $gray-20;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.25);
+    >[class^="icon-"], >[class*=" icon-"]{
+      top: 11px;
+      left: 15px;
+      right: inherit;
+    }
+    >P{
+      top: 13px;
+      right: 15px;
+    }
+    >ul{
+      border-radius: 0 0 5px 5px;
+      box-shadow: 0 5px 5px rgba(0,0,0,0.2);
+      top: 47px;
+      left:0;
+      opacity: 0;
+      height: 0;
+      overflow: hidden;
+      transition:height 0.233s,opacity 0.233s;
+      will-change: transition;
+      >li{
+        box-sizing: border-box;
+        background-color: $gray-20;
+        @include border("border-top",1px,$gray-30);
+        &:first-child{
+          border-radius: 0;
+        }
+      }
+    }
+    &.nav-menu{
+      >ul{
+        top: 47px;
+        height: 188px;
+        opacity: 1;
+      }
+    }
+  }
+}

@@ -2,7 +2,7 @@
 <div id="modal" class="modal" ng-class="{'modal-show':modal.status,'tip':modal.type === 'tip','waring':modal.type === 'waring','add':modal.type === 'add','size-big':modal.size === 'big','size-small':modal.size === 'small','size-window':modal.size === 'window'}" ng-click="$event.stopPropagation();">
     <div class="title" ng-if="modal.isNeedTitle === true">{{modal.title}}</div>
     <div class="content">
-        <span class="icon icon-info-black"></span>
+        <!--<span class="icon icon-info-black"></span>-->
         <div>{{modal.content}}</div>
     </div>
     <div class="btn-row" ng-class="{'display-cancel-btn':modal.btnType === 0,'display-submit-btn':modal.btnType === 1,'display-all-btn':modal.btnType === 2}">

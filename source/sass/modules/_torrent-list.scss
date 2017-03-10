@@ -9,10 +9,11 @@
   background-color: $gray-30;
   >li{
     list-style: none;
-    @include yahei();
+    //@include yahei();
     padding: 10px;
     @include border("border-bottom",1px,lighten($gray-0,35%));
     @include css3("transition",all 0.3s);
+    will-change: transition;
     cursor: pointer;
     &:hover{
       background-color: lighten($gray-0,33%);
@@ -48,6 +49,8 @@
       overflow: hidden;
       text-overflow: ellipsis;
       min-width: 0;
+      font-family: Roboto;
+      font-weight: 500;
     }
     >.transform-data{
     }
@@ -85,8 +88,13 @@
     }
   }
   @media (max-width: 1024px) {
-    top: 0;
-    bottom: 46px;
+    height: 100%;
+    position: static;
+    left: inherit;
+    right: inherit;
+    top: inherit;
+    bottom: inherit;
+    overflow: inherit;
   }
 }
 

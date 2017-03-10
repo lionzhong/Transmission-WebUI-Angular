@@ -11,7 +11,7 @@
                 <td>
                     <span>{{bytesConvert(detail.torrentData.totalSize * (detail.torrentData.percentDone < 1 ? detail.torrentData.percentDone : 1)) + "/" + bytesConvert(detail.torrentData.totalSize) }}</span>
                     <span>{{"(" + (detail.torrentData.percentDone < 1 ? parseFloat2(detail.torrentData.percentDone * 100) : "100") + "%)"}}</span>
-                    <span ng-if="data.detail.haveUnchecked > 0">未验证：{{bytesConvert(data.detail.haveUnchecked)}}</span>
+                    <span ng-if="dataStorage.detail.haveUnchecked > 0">未验证：{{bytesConvert(dataStorage.detail.haveUnchecked)}}</span>
                 </td>
             </tr>
             <tr>
@@ -36,7 +36,7 @@
             </tr>
             <tr>
                 <th>上一次活跃</th>
-                <td>{{getFullDate(data.detail.activityDate * 1000)}}</td>
+                <td>{{getFullDate(dataStorage.detail.activityDate * 1000)}}</td>
             </tr>
             <tr>
                 <th>错误</th>
@@ -59,7 +59,7 @@
                 <th>大小</th>
                 <td>
                     <span>{{bytesConvert(detail.torrentData.totalSize)}}</span>
-                    <span>({{data.detail.activityDate.pieceCount + "pieces @" + bytesConvert(data.detail.pieceSize)}})</span>
+                    <span>({{dataStorage.detail.activityDate.pieceCount + "pieces @" + bytesConvert(dataStorage.detail.pieceSize)}})</span>
                 </td>
             </tr>
             <tr>
@@ -68,22 +68,22 @@
             </tr>
             <tr>
                 <th>哈希</th>
-                <td>{{data.detail.hashString}}</td>
+                <td>{{dataStorage.detail.hashString}}</td>
             </tr>
             <tr>
                 <th>私有</th>
-                <td>{{data.detail.isPrivate === true ? "私有种子":"公开种子"}}</td>
+                <td>{{dataStorage.detail.isPrivate === true ? "私有种子":"公开种子"}}</td>
             </tr>
             <tr>
                 <th>源</th>
                 <td>
-                    <spaan>创建者 {{data.detail.creator}}</spaan>
-                    <span>于 {{getFullDate(data.detail.dateCreated * 1000)}} 创建</span>
+                    <spaan>创建者 {{dataStorage.detail.creator}}</spaan>
+                    <span>于 {{getFullDate(dataStorage.detail.dateCreated * 1000)}} 创建</span>
                 </td>
             </tr>
             <tr>
                 <th>备注</th>
-                <td>{{data.detail.comment}}</td>
+                <td>{{dataStorage.detail.comment}}</td>
             </tr>
             </tbody>
         </table>
@@ -91,7 +91,7 @@
 </div>
 <div class="deail-contents" ng-show="detail.selectedTabIndex === 1">
     <ul class="peer-list">
-        <li ng-repeat="item in data.detail.peers track by $index">
+        <li ng-repeat="item in dataStorage.detail.peers track by $index">
             <h3>
                 {{item.address}}
                 <span ng-if="item.isEncrypted" class="icon-lock"></span>
@@ -110,7 +110,7 @@
 </div>
 <div class="deail-contents" ng-show="detail.selectedTabIndex === 2">
     <ul class="tracker-list">
-        <li ng-repeat="item in data.detail.trackerStats track by item.tier">
+        <li ng-repeat="item in dataStorage.detail.trackerStats track by item.tier">
             <h3>
                 {{item.announce}}
                 <i>等级{{item.tier}}</i>
@@ -132,7 +132,7 @@
 </div>
 <div class="deail-contents" ng-show="detail.selectedTabIndex === 3">
     <ul class="file-list">
-        <li ng-repeat="item in data.detail.files track by $index">
+        <li ng-repeat="item in dataStorage.detail.files track by $index">
             <div class="size">
                 <div class="trigger">
                     <span class="icon-expand_less"></span><span class="icon-drag_handle"></span><span class="icon-expand_more selected"></span>
