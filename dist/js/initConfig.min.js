@@ -398,10 +398,10 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 });
 
                 $scope.allLoaded = true;
-                $("#loading").addClass("loading-hide");
-                setTimeout(function () {
-                    $("#loading").remove();
-                },1000);
+                // $("#loading").addClass("loading-hide");
+                // setTimeout(function () {
+                //     $("#loading").remove();
+                // },1000);
 
                 $(".hide").removeClass("hide");
 
