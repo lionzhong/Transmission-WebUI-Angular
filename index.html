@@ -2,7 +2,7 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
-    <title>Transmission 2.92 AngularJS Version</title>
+    <title>Transmission Angular</title>
     <link rel="stylesheet" href="dist/css/transmission.min.css">
     <link rel="apple-touch-icon-precomposed" href="dist/img/logo.png">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -13,24 +13,24 @@
     <div>
         <span class="logo" ng-click="modal.show($event);">
             <span class="logo-img"></span>
-            Transmission
+            <i>Transmission</i>
         </span>
-            <span class="icon-add">
+        <span class="icon-add">
             <i>添加任务</i>
         </span>
-            <span class="icon-delete" ng-class="{'disabled':dataStorage.selectedIndex === ''}" ng-click="removeFromList([dataStorage.torrent[dataStorage.selectedIndex].id])">
+        <span class="icon-delete" ng-class="{'disabled':dataStorage.selectedIndex === ''}" ng-click="removeFromList([dataStorage.torrent[dataStorage.selectedIndex].id])">
             <i>从列表中删除</i>
         </span>
-            <span class="icon-start-light" ng-class="{'disabled':dataStorage.selectedIndex === ''}" ng-click="startTransform([dataStorage.torrent[dataStorage.selectedIndex].id])">
+        <span class="icon-start-light" ng-class="{'disabled':dataStorage.selectedIndex === ''}" ng-click="startTransform([dataStorage.torrent[dataStorage.selectedIndex].id])">
             <i>开始</i>
         </span>
             <span class="icon-pause-light" ng-class="{'disabled':dataStorage.selectedIndex === ''}" ng-click="pauseTransform([dataStorage.torrent[dataStorage.selectedIndex].id])">
             <i>暂停</i>
         </span>
-            <span class="icon-start-all-light" ng-class="{'disabled':dataStorage.torrent.length === 0}" ng-click="startTransform(dataStorage.ids)">
+        <span class="icon-start-all-light" ng-class="{'disabled':dataStorage.torrent.length === 0}" ng-click="startTransform(dataStorage.ids)">
             <i>开始所有任务</i>
         </span>
-            <span class="icon-pause-all-light" ng-class="{'disabled':dataStorage.torrent.length === 0}" ng-click="pauseTransform(dataStorage.ids)">
+        <span class="icon-pause-all-light" ng-class="{'disabled':dataStorage.torrent.length === 0}" ng-click="pauseTransform(dataStorage.ids)">
             <i>暂停所有任务</i>
         </span>
     </div>

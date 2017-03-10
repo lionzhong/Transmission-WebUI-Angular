@@ -823,6 +823,10 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
             $scope.dataStorage.totalSpeed.upload = result.upload;
         };
 
+        $scope.getScreenWidth = function () {
+            return $(window).width();
+        };
+
         $scope.init = function() {
 
             $scope.loopFragment = {
@@ -832,9 +836,20 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
                 session: 15000
             };
 
-            $scope.getScreenWidth = function () {
-                return $(window).width();
-            };
+            if($scope.getScreenWidth() >= 1024){
+                var doc = window.document;
+                var docEl = doc.documentElement;
+
+                var requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+                var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+
+                if(!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+                    requestFullScreen.call(docEl);
+                }
+                else {
+                    cancelFullScreen.call(doc);
+                }
+            }
 
             //loop pool
             $scope.pool = {
@@ -884,7 +899,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
                 });
 
                 deferred.promise.then(function(response) {
-                    $scope.data = {
+                    $scope.dataStorage = {
                         global: response.global,
                         torrent: response.torrent,
                         selectedIndex: response.selectedIndex,

@@ -4,9 +4,9 @@ html,body{
   overflow: hidden;
   font-family: "Roboto" !important;
   font-weight: 400;
-  @media (max-width: 1024px) {
-    overflow: auto;
-  }
+  //@media (max-width: 1024px) {
+  //  overflow: auto;
+  //}
 }
 
 .clearfix {

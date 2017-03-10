@@ -4,7 +4,7 @@
   top: 15px;
   right: 15px;
   box-shadow:none;
-  z-index: 9;
+  z-index: 13;
   width: 300px;
   >[class^="icon-"], >[class*=" icon-"]{
     position: absolute;
@@ -78,6 +78,7 @@
     left: inherit;
     right: inherit;
     height: 47px;
+    z-index: 9;
     background-color: $gray-20;
     box-shadow: 0 5px 25px rgba(0,0,0,0.25);
     >[class^="icon-"], >[class*=" icon-"]{
