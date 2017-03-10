@@ -62,7 +62,8 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
                 param: {
                     method: "session-get"
                 },
-                url: "?type=getSession"
+                url: "?type=getSession",
+                cancel: true
             });
         };
 
@@ -72,7 +73,8 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
                 param: {
                     method: "session-stats"
                 },
-                url: "?type=getSessionStats"
+                url: "?type=getSessionStats",
+                cancel: true
             });
         };
 
@@ -242,7 +244,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
         return service;
     }]);
 
-    $app.controller("mainController", ["$scope", "$http", "$q", "$sce", "$timeout", "ajaxService", function($scope, $http, $q, $sce, $timeout, ajaxService) {
+    $app.controller("mainController", ["$scope", "$http", "$q", "$sce", "$timeout", "$window", "ajaxService", function($scope, $http, $q, $sce, $timeout, $window, ajaxService) {
 
         //获取session
         var sesseionErrCount = 0;
@@ -250,7 +252,8 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
         $scope.getSession = function(session) {
 
             //获取session
-            ajaxService.getSession(session).then(function(response) {
+            $scope.pool.ajax.session = ajaxService.getSession(session);
+            $scope.pool.ajax.session.promise.then(function(response) {
                 $scope.dataStorage.global = response.data.arguments;
             }, function(reason) {
                 var str = reason.response.data;
@@ -265,20 +268,22 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
                     sesseionErrCount += 1;
                     if(sesseionErrCount === 1){
                         errStartTime = new Date().getTime();
-                    }else if(sesseionErrCount === 5){
+                    }else if(sesseionErrCount >= 5){
                         var now = new Date().getTime();
-                        if((errStartTime - now) <= 60000){
+                        if((now - errStartTime) <= 60000){
+                            $scope.stopAllAjax();
                             $scope.modal.show({
                                 type:"waring",
                                 content:"一分钟内请求Session失败次数过多，请检查网络或点击确定重新加载！",
                                 size:"small",
                                 btnType : 2,
                                 submitFunc : function () {
-
+                                    $window.location.reload();
                                 }
                             });
                         }else{
                             sesseionErrCount = 0;
+                            errStartTime = new Date().getTime();
                         }
                     }
                 }
@@ -288,7 +293,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
         //获取现在的状态
         $scope.getStatsData = function() {
             //获取session
-            ajaxService.getSessionStats($scope.dataStorage.session).then(function(response) {
+            $scope.pool.ajax.sessionStats = ajaxService.getSessionStats($scope.dataStorage.session).then(function(response) {
                 $scope.dataStorage.stats = response.data.arguments;
                 $scope.dataStorage.totalSpeed.download = $scope.dataStorage.stats.downloadSpeed;
                 $scope.dataStorage.totalSpeed.upload = $scope.dataStorage.stats.uploadSpeed;
@@ -355,7 +360,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
         //循环获取session数据
         $scope.loopGetSessionData = function() {
             $scope.getSession($scope.dataStorage.session);
-            $scope.pool.loop.torrent = setInterval(function() {
+            $scope.pool.loop.session = setInterval(function() {
                 $scope.getSession($scope.dataStorage.session);
             }, $scope.loopFragment.session);
         };
@@ -759,8 +764,15 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
             "submitFunc":function () {
                 $scope.modal.close();
             },
-            "show":function ($event,op) {
-                $event.stopPropagation();
+            "show":function (op) {
+                if(op.$event!==null && op.$event!==undefined){
+                    op.$event.stopPropagation();
+                }
+
+                if($scope.modal.status === true){
+                    return false;
+                }
+
                 var className = "alpha";
 
                 if(op !== undefined){
@@ -827,6 +839,15 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
             return $(window).width();
         };
 
+        $scope.stopAllAjax = function () {
+            _.each($scope.pool.loop,function (value,key) {
+                clearInterval($scope.pool.loop[key]);
+            });
+            _.each($scope.pool.ajax,function (value,key) {
+                $scope.closeAjax($scope.pool.ajax[key]);
+            });
+        };
+
         $scope.init = function() {
 
             $scope.loopFragment = {
@@ -854,10 +875,11 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
             //loop pool
             $scope.pool = {
                 "loop": {
-                    "torrent": "",
-                    "activeTorrent": "",
-                    "session": "",
-                    "detail": ""
+                    "torrent": 0,
+                    "activeTorrent": 0,
+                    "session": 0,
+                    "sessionStats":0,
+                    "detail": 0
                 },
                 "ajax": {
                     "torrent": {},
@@ -915,16 +937,15 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
             }
 
             //连续获取seesion
-            var loadSession = setInterval(function() {
+            $scope.pool.loop.session = setInterval(function() {
                 $scope.getSession();
             }, 3000);
+
             //获取到session后结束循环获取session
             $scope.$on("getSessionDone", function(event) {
-                clearInterval(loadSession);
-
-                $scope.loopGetSessionData();
-
+                clearInterval($scope.pool.loop.session);
                 $scope.getStatsData();
+                $scope.loopGetSessionData();
             });
 
             $scope.$on("getStatsDone", function() {

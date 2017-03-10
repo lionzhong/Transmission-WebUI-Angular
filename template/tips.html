@@ -6,7 +6,7 @@
         <div>{{modal.content}}</div>
     </div>
     <div class="btn-row" ng-class="{'display-cancel-btn':modal.btnType === 0,'display-submit-btn':modal.btnType === 1,'display-all-btn':modal.btnType === 2}">
-        <div class="cancel" ng-if="modal.btnType === 1 || modal.btnType === 2" ng-click="modal.submitFunc()">{{modal.btnText.cancel}}</div>
+        <div class="cancel" ng-if="modal.btnType === 1 || modal.btnType === 2" ng-click="modal.close()">{{modal.btnText.cancel}}</div>
         <div class="submit" ng-if="modal.btnType === 0 || modal.btnType === 2" ng-click="modal.submitFunc()">{{modal.btnText.submit}}</div>
     </div>
 </div>

@@ -11,7 +11,7 @@
 <body ng-controller="mainController" style="touch-action: none;" ng-swipe-left="swip.left()" ng-swipe-right="swip.right()">
 <header class="header mobile" ng-class="{'mobile-show':consolePanel.status}">
     <div>
-        <span class="logo" ng-click="modal.show($event);">
+        <span class="logo" ng-click="modal.show({'$event':$event});">
             <span class="logo-img"></span>
             <i>Transmission</i>
         </span>

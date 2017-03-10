@@ -29,7 +29,7 @@
   color: $gray-70;
   border-radius: 10px;
   box-sizing: border-box;
-  padding: 20px;
+  padding: 10px;
   &.modal-show{
     display: block;
   }
@@ -123,9 +123,9 @@
   }
   >.btn-row{
     position: absolute;
-    left: 20px;
-    right: 20px;
-    bottom: 20px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
     z-index: 22;
     >div{
       background-color: $gray-100;
@@ -137,6 +137,7 @@
       border-radius: 5px;
       position: relative;
       @include css3("transition",all 0.3s);
+      will-change: transition;
       &:hover{
         background-color: $prime-blue;
         color: $gray-100;
@@ -153,17 +154,30 @@
         float: left;
         width: 50%;
         &.submit{
-          border-radius: 0 5px 5px 0;
+          //border-radius: 0 5px 5px 0;
           margin-left: -1px;
           z-index: 1;
           &:hover{
+            z-index: 3;
             background-color: $prime-red;
           }
         }
         &.cancel{
           z-index: 2;
-          border-radius: 5px 0 0 5px;
+          //border-radius: 5px 0 0 5px;
           @include border("border-right");
+          &:hover{
+            z-index: 3;
+            border-color: transparent;
+          }
+        }
+        @media (max-width: 1024px) {
+          &.submit,&.cancel{
+            &:hover{
+              color: $gray-0;
+              background-color: transparent;
+            }
+          }
         }
       }
     }
