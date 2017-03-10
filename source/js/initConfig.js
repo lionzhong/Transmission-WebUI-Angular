@@ -2,16 +2,12 @@
  * Created by vincent on 2017/3/4.
  */
 
-define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], function($, _, tr, angularAMD) {
+define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($, _, tr, angularAMD) {
     "use strict";
 
-    var app = angular.module("transmission", ["ngTouch"]);
+    var app = angular.module("transmission", ["mn"]);
 
     var $app = angularAMD.bootstrap(app);
-
-    $app.config(["$touchProvider", function($touchProvider) {
-        $touchProvider.ngClickOverrideEnabled([true]);
-    }]);
 
     $app.factory("ajaxService", ["$http", "$q", function($http, $q) {
         var service = {};
@@ -73,8 +69,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
                 param: {
                     method: "session-stats"
                 },
-                url: "?type=getSessionStats",
-                cancel: true
+                url: "?type=getSessionStats"
             });
         };
 
@@ -244,7 +239,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
         return service;
     }]);
 
-    $app.controller("mainController", ["$scope", "$http", "$q", "$sce", "$timeout", "$window", "ajaxService", function($scope, $http, $q, $sce, $timeout, $window, ajaxService) {
+    $app.controller("mainController", ["$scope", "$http", "$q", "$sce", "$timeout", "$window", "$document", "ajaxService", function($scope, $http, $q, $sce, $timeout, $window, $document, ajaxService) {
 
         //获取session
         var sesseionErrCount = 0;
@@ -254,16 +249,28 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
             //获取session
             $scope.pool.ajax.session = ajaxService.getSession(session);
             $scope.pool.ajax.session.promise.then(function(response) {
+                sesseionErrCount = 0;
                 $scope.dataStorage.global = response.data.arguments;
             }, function(reason) {
+                var val = true;
                 var str = reason.response.data;
-                var temp = "X-Transmission-Session-Id: ";
-                var start = str.indexOf(temp);
-                var end = str.indexOf("<\/code>");
-                if(start !== -1 && end !== -1){
-                    $scope.dataStorage.session = str.substring((start + (temp.length - 1)), end);
-                    $scope.$emit("getSessionDone");
-                }else{
+                if(str === null){
+                    val = false;
+                }
+
+                if(val === true){
+                    var temp = "X-Transmission-Session-Id: ";
+                    var start = str.indexOf(temp);
+                    var end = str.indexOf("<\/code>");
+                    if(start !== -1 && end !== -1){
+                        $scope.dataStorage.session = str.substring((start + (temp.length - 1)), end);
+                        $scope.$emit("getSessionDone");
+                    }else{
+                        val = false;
+                    }
+                }
+
+                if(val === false){
                     //1分钟内连续错误5次则直接停止所有异步请求，并提示
                     sesseionErrCount += 1;
                     if(sesseionErrCount === 1){
@@ -274,7 +281,8 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
                             $scope.stopAllAjax();
                             $scope.modal.show({
                                 type:"waring",
-                                content:"一分钟内请求Session失败次数过多，请检查网络或点击确定重新加载！",
+                                title:"一分钟内请求Session失败次数过多",
+                                content:"请检查您的网络是否顺畅，或点击确定通过刷新尝试解决！",
                                 size:"small",
                                 btnType : 2,
                                 submitFunc : function () {
@@ -290,6 +298,14 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
             });
         };
 
+        //循环获取session数据
+        $scope.loopGetSessionData = function() {
+            $scope.getSession($scope.dataStorage.session);
+            $scope.pool.loop.session = setInterval(function() {
+                $scope.getSession($scope.dataStorage.session);
+            }, $scope.loopFragment.session);
+        };
+
         //获取现在的状态
         $scope.getStatsData = function() {
             //获取session
@@ -299,15 +315,27 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
                 $scope.dataStorage.totalSpeed.upload = $scope.dataStorage.stats.uploadSpeed;
                 $scope.$emit("getStatsDone");
             }, function(reason) {
-                console.log("查询stats失败");
+                $scope.modal.show({
+                    type:"waring",
+                    title:"查询统计数据失败",
+                    content:"请检查您的网络是否顺畅，或点击确定重新加载一次！",
+                    size:"small",
+                    btnType : 2,
+                    submitFunc : function () {
+                        $scope.getStatsData();
+                    }
+                });
             });
         };
 
         //获取正在活动的Torrent数据
+        var activeErrCount = 0;
+        var activeStartTime = 0;
         $scope.getRecentlyActiveTorrentData = function() {
             //获取活动中的torrent数据
             $scope.pool.ajax.activeTorrent = ajaxService.getActiveTorrent($scope.dataStorage.session);
             $scope.pool.ajax.activeTorrent.promise.then(function(response) {
+                activeErrCount = 0;
                 //替换数据列表中对应的数据
                 _.each(response.data.arguments.torrents, function(value, index) {
                     var $index = _.findIndex($scope.dataStorage.torrent, function(o) {
@@ -320,7 +348,29 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
                 });
                 $scope.getTotalSpeed();
             }, function(reason) {
-                console.log("查询Torrent失败");
+                activeErrCount += 1;
+                if(activeErrCount === 1){
+                    activeStartTime = new Date().getTime();
+                }else if(sesseionErrCount >= 5){
+                    var now = new Date().getTime();
+                    if((now - activeStartTime) <= 60000){
+                        clearInterval($scope.pool.loop.activeTorrent);
+                        $scope.closeAjax($scope.pool.ajax.torrent);
+                        $scope.modal.show({
+                            type:"waring",
+                            title:"短期内多次查询活动任务失败",
+                            content:"请检查您的网络是否顺畅，或点击确定通过刷新尝试解决！",
+                            size:"small",
+                            btnType : 2,
+                            submitFunc : function () {
+                                $scope.loopGetTorrentData();
+                            }
+                        });
+                    }else{
+                        activeErrCount = 0;
+                        activeStartTime = new Date().getTime();
+                    }
+                }
             });
         };
 
@@ -353,16 +403,17 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
                     $scope.getRecentlyActiveTorrentData();
                 }, $scope.loopFragment.torrent);
             }, function(reason) {
-                console.log("查询Torrent失败");
+                $scope.modal.show({
+                    type:"waring",
+                    title:"获取传输任务列表数据失败",
+                    content:"请检查您的网络是否顺畅，或点击确定重新加载一次！",
+                    size:"small",
+                    btnType : 2,
+                    submitFunc : function () {
+                        $scope.loopGetTorrentData();
+                    }
+                });
             });
-        };
-
-        //循环获取session数据
-        $scope.loopGetSessionData = function() {
-            $scope.getSession($scope.dataStorage.session);
-            $scope.pool.loop.session = setInterval(function() {
-                $scope.getSession($scope.dataStorage.session);
-            }, $scope.loopFragment.session);
         };
 
         //选择某下载任务
@@ -370,7 +421,6 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
             if (index === $scope.dataStorage.selectedIndex) {
                 return false;
             }
-
             $scope.dataStorage.selectedIndex = index;
             if ($scope.detail.status === true) {
                 $scope.detail.close();
@@ -384,6 +434,10 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
 
                 if($scope.modal.status === true){
                     return false;
+                }
+
+                if($scope.nav.status === true){
+                    $scope.nav.close();
                 }
 
                 if ($scope.getScreenWidth() <= 1024) {
@@ -400,12 +454,30 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
                     return false;
                 }
 
+                if($scope.nav.status === true){
+                    $scope.nav.close();
+                }
+
                 if ($scope.getScreenWidth() <= 1024) {
                     if ($scope.consolePanel.status === false && $scope.detail.status === true) {
                         $scope.detail.close();
                     } else if ($scope.consolePanel.status === false && $scope.detail.status === false) {
                         $scope.consolePanel.show();
                     }
+                }
+            },
+            up:function ($event) {
+                if($scope.modal.status === true || $scope.consolePanel.status === true || $scope.detail.status === true){
+                    return false;
+                }else{
+                    $scope.nav.close();
+                }
+            },
+            down:function () {
+                if($scope.modal.status === true || $scope.consolePanel.status === true || $scope.detail.status === true){
+                    return false;
+                }else{
+                    $scope.nav.show();
                 }
             }
         };
@@ -616,34 +688,55 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
             "status": false,
             "torrentData": false,
             "selectedTabIndex": 0,
+            "loopGetDetail":function () {
+                $scope.pool.ajax.fullDetail = ajaxService.getFullDetail($scope.dataStorage.session, [$scope.dataStorage.torrent[$scope.dataStorage.selectedIndex].id]);
+                $scope.pool.ajax.fullDetail.promise.then(function(response) {
+                    $scope.dataStorage.detail = response.data.arguments.torrents[0];
+                    $scope.pool.loop.detail = setInterval(function() {
+                        $scope.pool.ajax.detail = ajaxService.getDetail($scope.dataStorage.session, [$scope.dataStorage.torrent[$scope.dataStorage.selectedIndex].id]);
+                        $scope.pool.ajax.detail.promise.then(function($response) {
+                            $scope.dataStorage.detail = _.merge($scope.dataStorage.detail, $response.data.arguments.torrents[0]);
+                        }, function(reason) {
+                            clearInterval($scope.pool.loop.detail);
+                            $scope.closeAjax($scope.pool.ajax.fullDetail);
+                            $scope.closeAjax($scope.pool.ajax.detail);
+                            $scope.modal.show({
+                                type:"waring",
+                                title:"维护明细数据失败",
+                                content:"请检查您的网络是否顺畅，或点击确定通过刷新尝试解决！",
+                                size:"small",
+                                btnType : 2,
+                                submitFunc : function () {
+                                    $scope.detail.loopGetDetail();
+                                }
+                            });
+                        });
+                    }, $scope.loopFragment.detail);
+                }, function(reason) {
+                    $scope.modal.show({
+                        type:"waring",
+                        title:"获取明细数据失败",
+                        content:"请检查您的网络是否顺畅！",
+                        size:"small",
+                        btnType : 1
+                    });
+                });
+            },
             "show": function() {
                 $scope.detail.status = $scope.detail.status !== true;
 
                 if ($scope.detail.status === true) {
                     if ($scope.dataStorage.selectedIndex !== '') {
                         $scope.detail.torrentData = $scope.dataStorage.torrent[$scope.dataStorage.selectedIndex];
-                        $scope.pool.ajax.fullDetail = ajaxService.getFullDetail($scope.dataStorage.session, [$scope.dataStorage.torrent[$scope.dataStorage.selectedIndex].id]);
-                        $scope.pool.ajax.fullDetail.promise.then(function(response) {
-                            $scope.dataStorage.detail = response.data.arguments.torrents[0];
-                            $scope.pool.loop.detail = setInterval(function() {
-                                $scope.pool.ajax.detail = ajaxService.getDetail($scope.dataStorage.session, [$scope.dataStorage.torrent[$scope.dataStorage.selectedIndex].id]);
-                                $scope.pool.ajax.detail.promise.then(function($response) {
-                                    $scope.dataStorage.detail = _.merge($scope.dataStorage.detail, $response.data.arguments.torrents[0]);
-                                }, function(reason) {
-                                    console.log("维护明细数据失败");
-                                });
-                            }, $scope.loopFragment.detail);
-                        }, function(reason) {
-                            console.log("获取明细失败");
-                        });
+
                     }
                 } else {
                     $scope.detail.close();
                 }
             },
             "close": function() {
-                clearInterval($scope.pool.loop.detail);
                 $scope.detail.status = false;
+                clearInterval($scope.pool.loop.detail);
                 $scope.closeAjax($scope.pool.ajax.fullDetail);
                 $scope.closeAjax($scope.pool.ajax.detail);
             }
@@ -666,6 +759,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
                 clearInterval($scope.pool.loop.detail);
                 $scope.closeAjax($scope.pool.ajax.fullDetail);
                 $scope.closeAjax($scope.pool.ajax.detail);
+                $scope.detail.loopGetDetail();
             }
         };
 
@@ -690,19 +784,13 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
             ajaxService.removeFromList($scope.dataStorage.session, ids).then(function(response) {
                 $scope.reload.torrent();
             }, function(reason) {
-                console.log("从下载列表中移除失败");
-            });
-        };
-
-        $scope.removeFromList = function(ids) {
-            if (validationIDS(ids) === false) {
-                return false;
-            }
-            // $scope.dataStorage.session
-            ajaxService.removeAllData($scope.dataStorage.session, ids).then(function(response) {
-                $scope.reload.torrent();
-            }, function(reason) {
-                console.log("从下载列表中移除失败");
+                $scope.modal.show({
+                    type:"waring",
+                    title:"从下载列表中移除任务失败",
+                    content:"请检查您的网络是否顺畅！",
+                    size:"small",
+                    btnType : 1
+                });
             });
         };
 
@@ -713,7 +801,13 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
             ajaxService.pauseTransform($scope.dataStorage.session, ids).then(function(response) {
                 $scope.reload.torrent();
             }, function(reason) {
-                console.log("暂停传输任务请求失败！");
+                $scope.modal.show({
+                    type:"waring",
+                    title:"暂停传输任务请求失败！",
+                    content:"请检查您的网络是否顺畅！",
+                    size:"small",
+                    btnType : 1
+                });
             });
         };
 
@@ -724,7 +818,13 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
             ajaxService.startTransform($scope.dataStorage.session, ids).then(function(response) {
                 $scope.reload.torrent();
             }, function(reason) {
-                console.log("暂停传输任务请求失败！");
+                $scope.modal.show({
+                    type:"waring",
+                    title:"开始传输任务请求失败！",
+                    content:"请检查您的网络是否顺畅！",
+                    size:"small",
+                    btnType : 1
+                });
             });
         };
 
@@ -735,7 +835,13 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
             ajaxService.startTransformNow($scope.dataStorage.session, ids).then(function(response) {
                 $scope.reload.torrent();
             }, function(reason) {
-                console.log("暂停传输任务请求失败！");
+                $scope.modal.show({
+                    type:"waring",
+                    title:"立即开始传输任务请求失败！",
+                    content:"请检查您的网络是否顺畅！",
+                    size:"small",
+                    btnType : 1
+                });
             });
         };
 
@@ -753,9 +859,9 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
             "status":false,
             "isNeedTitle":false,
             "type":"add",//tip,waring,delete,add,window
-            "size":"big",
-            "title":"测试标题",
-            "content":"添加传输任务失败！",
+            "size":"small",
+            "title":"添加传输任务失败",
+            "content":"请检查你的网络，或者尝试重新添加一次！",
             "btnType":2,//0 只有确定按钮，1 只有取消按钮，2 两个都有
             "btnText":{
                 "submit":"确定",
@@ -765,7 +871,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
                 $scope.modal.close();
             },
             "show":function (op) {
-                if(op.$event!==null && op.$event!==undefined){
+                if(op !== undefined && op.$event!==null && op.$event!==undefined){
                     op.$event.stopPropagation();
                 }
 
@@ -800,10 +906,14 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
             }
         };
 
-        $(document).click(function () {
+        $document.click(function () {
             if($scope.modal.status === true){
                 $scope.modal.close();
             }
+
+            // if($scope.nav.status === true){
+            //     $scope.nav.close();
+            // }
         });
 
         $scope.nav = {
@@ -815,8 +925,14 @@ define(["jquery", "lodash", "transmission", "angularAMD", "angular-touch"], func
             toggle:function () {
                 $scope.nav.status = $scope.nav.status !== true;
             },
+            show:function () {
+                $scope.nav.status = true;
+            },
             close:function (index) {
                 $scope.nav.status = false;
+            },
+            parseMenuVisible:function ($index) {
+                return ($index < 3);
             }
         };
 

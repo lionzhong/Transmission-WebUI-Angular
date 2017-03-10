@@ -8,10 +8,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="mobile-web-app-capable" content="yes">
 </head>
-<body ng-controller="mainController" style="touch-action: none;" ng-swipe-left="swip.left()" ng-swipe-right="swip.right()">
+<body ng-controller="mainController" style="touch-action: none;" mn-touch swipe-left="swip.left()" swipe-right="swip.right()" swipe-up="swip.up()">
 <header class="header mobile" ng-class="{'mobile-show':consolePanel.status}">
     <div>
-        <span class="logo" ng-click="modal.show({'$event':$event});">
+        <span class="logo">
             <span class="logo-img"></span>
             <i>Transmission</i>
         </span>
@@ -36,13 +36,15 @@
     </div>
 </header>
 <nav class="nav" ng-class="{'nav-menu':nav.status}">
-    <span class="icon-menu" ng-click="nav.toggle()"></span>
-    <p>
-        <span class="icon-download"> {{dataStorage.totalSpeed.download !== 0 ?bytesConvert(dataStorage.totalSpeed.download):0}}/s </span>
-        <span class="icon-upload"> {{dataStorage.totalSpeed.upload !== 0 ?bytesConvert(dataStorage.totalSpeed.upload):0}}/s </span>
-    </p>
+    <div>
+        <span class="icon-menu" ng-click="nav.toggle()"></span>
+        <p>
+            <span class="icon-download"> {{dataStorage.totalSpeed.download !== 0 ?bytesConvert(dataStorage.totalSpeed.download):0}}/s </span>
+            <span class="icon-upload"> {{dataStorage.totalSpeed.upload !== 0 ?bytesConvert(dataStorage.totalSpeed.upload):0}}/s </span>
+        </p>
+    </div>
     <ul>
-        <li ng-repeat="item in nav.menudata.name track by $index" ng-click="nav.close($index)">
+        <li ng-repeat="item in nav.menudata.name track by $index" ng-if="getScreenWidth() <=  1024 ? $index < 3:true" ng-click="nav.close($index)">
             <span ng-class="nav.menudata.className[$index]"></span>
             <i>{{item}}</i>
         </li>

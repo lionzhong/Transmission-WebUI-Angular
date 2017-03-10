@@ -88,12 +88,11 @@
     }
   }
   @media (max-width: 1024px) {
-    margin-top: 46px;
     height: 100%;
     position: static;
     left: inherit;
     right: inherit;
-    top: inherit;
+    top: 46px;
     bottom: inherit;
     //overflow: inherit;
   }

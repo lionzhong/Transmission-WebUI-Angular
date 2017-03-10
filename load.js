@@ -19,6 +19,7 @@ requirejs.config({
         "transmission":"../dist/js/transmission.min",
         "perfectScroll":"perfect-scrollbar/perfect-scrollbar.jquery.min",
         "jQueryScrollbar":"jQuery-Scrollbar/jquery.scrollbar.min",
+        "mnTouch":"mn-touch/dist/mn-touch.min",
         "localData":"../dist/js/localdata.min",
         "init":"../dist/js/initConfig.min"
     },
@@ -26,6 +27,7 @@ requirejs.config({
         "angular":{
             exports:"angular"
         },
+        "mnTouch":["angular"],
         "angularAMD": ["angular"],
         "angular-route":["angular"],
         "angular-touch":["angular"]
