@@ -736,7 +736,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 if ($scope.detail.status === true) {
                     if ($scope.dataStorage.selectedIndex !== '') {
                         $scope.detail.torrentData = $scope.dataStorage.torrent[$scope.dataStorage.selectedIndex];
-
+                        $scope.detail.loopGetDetail();
                     }
                 } else {
                     $scope.detail.close();
