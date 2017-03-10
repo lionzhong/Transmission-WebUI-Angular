@@ -28,8 +28,8 @@
     line-height: 40px;
     font-size: ceil($font-size-large*1.20);
     @include border("border-bottom",1px,$gray-30);
-    background: $gray-10 url("../img/logo_bg.jpg") 0 0 no-repeat;
-    background-size: 100% 100%;
+    background: $gray-10 url("../img/logo_bg.jpg") 0 bottom no-repeat;
+    //background-size: 100% 141px;
     position: relative;
     >.logo-img,>i{
       position: absolute;
