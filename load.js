@@ -20,6 +20,7 @@ requirejs.config({
         "perfectScroll":"perfect-scrollbar/perfect-scrollbar.jquery.min",
         "jQueryScrollbar":"jQuery-Scrollbar/jquery.scrollbar.min",
         "mnTouch":"mn-touch/dist/mn-touch.min",
+        "iscroll":"iscroll/build/iscroll-lite",
         "localData":"../dist/js/localdata.min",
         "init":"../dist/js/initConfig.min"
     },

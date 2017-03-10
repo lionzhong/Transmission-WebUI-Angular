@@ -397,6 +397,14 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                     $scope.dataStorage.ids.push(obj.id);
                 });
 
+                $scope.allLoaded = true;
+                $("#loading").addClass("loading-hide");
+                setTimeout(function () {
+                    $("#loading").remove();
+                },1000);
+
+                $(".hide").removeClass("hide");
+
                 //loop the active torrent
                 $scope.pool.ajax.activeTorrent = $scope.getRecentlyActiveTorrentData();
                 $scope.pool.loop.activeTorrent = setInterval(function() {
@@ -906,14 +914,16 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
             }
         };
 
-        $document.click(function () {
-            if($scope.modal.status === true){
-                $scope.modal.close();
-            }
+        $timeout(function () {
+            $document.click(function () {
+                if($scope.modal.status === true){
+                    $scope.modal.close();
+                }
 
-            // if($scope.nav.status === true){
-            //     $scope.nav.close();
-            // }
+                // if($scope.nav.status === true){
+                //     $scope.nav.close();
+                // }
+            });
         });
 
         $scope.nav = {
@@ -923,6 +933,9 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 className:["icon-settings","icon-scheduled","icon-listview","icon-info-black"]
             },
             toggle:function () {
+                if($scope.allLoaded === false){
+                    return false;
+                }
                 $scope.nav.status = $scope.nav.status !== true;
             },
             show:function () {
@@ -1021,8 +1034,8 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 detail: {},
                 test:0,
                 totalSpeed:{
-            	    download:0,
-                    upload:0
+            	    download:null,
+                    upload:null
                 }
             };
 
@@ -1075,6 +1088,8 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 settings: "template/settings.html",
                 modal:"template/tips.html"
             };
+
+            $scope.allLoaded = false;
 
             document.addEventListener('touchstart', function(event) {
                 // 判断默认行为是否可以被禁用

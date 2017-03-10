@@ -59,6 +59,7 @@
         >div{
           background-color: $prime-blue;
           animation: downloading 1.5s infinite;
+          will-change: animation;
         }
       }
     }
@@ -86,14 +87,41 @@
         color: lighten($gray-0,80%);
       }
     }
+    &.torrent-list-loading{
+      >.name,>.status,>.transform-data{
+        position: relative;
+        height: 20px;
+        padding: 5px 0;
+        &:before{
+          content: "";
+          position: absolute;
+          left: 0;
+          top: 0;
+          bottom:0;
+          right: 80px;
+          background-color: $gray-70;
+          opacity: 0.5;
+        }
+      }
+      >.status{
+        &:before{
+          right:230px;
+        }
+      }
+      >.transform-data{
+        &:before{
+          right:170px;
+        }
+      }
+    }
   }
   @media (max-width: 1024px) {
-    height: 100%;
-    position: static;
-    left: inherit;
-    right: inherit;
-    top: 46px;
-    bottom: inherit;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 47px;
+    bottom: 0;
+    z-index: 1;
     //overflow: inherit;
   }
 }

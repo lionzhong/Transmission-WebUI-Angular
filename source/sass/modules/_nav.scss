@@ -97,6 +97,9 @@
         top: 11px;
         left: 15px;
         right: inherit;
+        &:hover{
+          color: lighten($prime-blue,25%);
+        }
       }
       >P{
         top: 13px;
@@ -141,6 +144,12 @@
         left: 0;
         height: 47px;
         width: 100%;
+        >[class^="icon-"], >[class*=" icon-"]{
+          color: $gray-80;
+          &:hover{
+            color: $gray-80;
+          }
+        }
       }
       >ul{
         left: 0;

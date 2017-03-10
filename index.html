@@ -9,6 +9,12 @@
     <meta name="mobile-web-app-capable" content="yes">
 </head>
 <body ng-controller="mainController" style="touch-action: none;" mn-touch swipe-left="swip.left()" swipe-right="swip.right()" swipe-up="swip.up()">
+<div class="loading" id="loading">
+    <div>
+        <img src="dist/img/logo.png" alt="">
+        <span>Loading...</span>
+    </div>
+</div>
 <header class="header mobile" ng-class="{'mobile-show':consolePanel.status}">
     <div>
         <span class="logo">
@@ -38,7 +44,7 @@
 <nav class="nav" ng-class="{'nav-menu':nav.status}">
     <div>
         <span class="icon-menu" ng-click="nav.toggle()"></span>
-        <p>
+        <p class="hide">
             <span class="icon-download"> {{dataStorage.totalSpeed.download !== 0 ?bytesConvert(dataStorage.totalSpeed.download):0}}/s </span>
             <span class="icon-upload"> {{dataStorage.totalSpeed.upload !== 0 ?bytesConvert(dataStorage.totalSpeed.upload):0}}/s </span>
         </p>
