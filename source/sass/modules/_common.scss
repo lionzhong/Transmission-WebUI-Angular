@@ -14,7 +14,7 @@ html,body{
 
 .loading {
   position: fixed;
-  top: 47px;
+  top: 56px;
   bottom: 0;
   left: 0;
   right: 0;
@@ -24,6 +24,9 @@ html,body{
   background-color: $gray-20;
   text-align: center;
   overflow: hidden;
+  @media (max-width: 1024px){
+    top: 47px;
+  }
   >div{
     position: absolute;
     top: 50%;
