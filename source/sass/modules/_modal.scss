@@ -254,6 +254,7 @@
     color: $gray-40;
     >div{
       margin-bottom: 15px;
+      @include clearfix;
     }
   }
   label,input{
@@ -271,5 +272,12 @@
     display: block;
     width: 100%;
     box-sizing: border-box;
+  }
+  .badge{
+    float: right;
+    display: inline-block;
+    color: $gray-0;
+    font-size: $font-size-base;
+    font-weight: bold;
   }
 }

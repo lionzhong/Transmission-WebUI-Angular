@@ -1059,7 +1059,11 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
             	"session": "",
                 "global": {
             	    "alt-speed-down":0,
-                    "alt-speed-up":0
+                    "alt-speed-up":0,
+                    "alt-speed-time-begin":0,
+                    "alt-speed-time-end":0,
+                    "alt-speed-time-day":127,
+                    "encryption":"tolerated"
                 },
                 "torrent": [],
                 "selectedIndex": "",
@@ -1069,8 +1073,51 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 "totalSpeed":{
             	    download:null,
                     upload:null
-                }
+                },
+                "speed-limit-times":(function () {
+                    var start = [];
+                    var min = 0;
+                    var parseTime = function (mins) {
+                        var str = "";
+                        var hour = 0;
+                        var $mins = 0;
+
+                        if (mins < 60) {
+                            str = "00:" + (mins < 10 ? "0" + mins : mins);
+                        } else {
+                            hour = parseInt(mins / 60);
+                            $mins = mins - (hour * 60);
+                            str = (hour < 10 ? "0" + hour : hour) + ":" + ($mins === 0 ? "00" : $mins);
+                        }
+
+                        return str;
+                    };
+                    for (var i = 0; i < 96; i++) {
+                        start.push({key:parseTime(min),value:min});
+                        min += 15;
+                    }
+                    return start;
+                })(),
+                "speed-limit-day":[
+                    {"key":"每天","value":127},
+                    {"key":"工作日","value":62},
+                    {"key":"周末","value":65},
+                    {"key":"星期天","value":1},
+                    {"key":"星期一","value":2},
+                    {"key":"星期二","value":4},
+                    {"key":"星期三","value":8},
+                    {"key":"星期四","value":16},
+                    {"key":"星期五","value":32},
+                    {"key":"星期六","value":64}
+                ],
+                "encryption":[
+                    {"key":"允许加密","value":"tolerated"},
+                    {"key":"喜欢加密","value":"preferred"},
+                    {"key":"需要加密","value":"required"}
+                ]
             };
+
+            console.log($scope.dataStorage["speed-limit-time-start"]);
 
             //load local data
             $scope.localMode = false;

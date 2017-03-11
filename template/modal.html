@@ -14,6 +14,7 @@
             <h3>下载</h3>
             <div>
                 <div>
+                    <span class="badge">可用容量：{{bytesConvert(dataStorage.global['download-dir-free-space'])}}</span>
                     <label for="download-dir">下载目录</label>
                     <input id="download-dir" class="input" type="text" ng-model="dataStorage.global['download-dir']">
                 </div>
@@ -72,21 +73,21 @@
                     <label for="alt-speed-time-enabled">计划时段:</label>
                 </div>
                 <div>
-                    <label for="alt-speed-time-begin">开始时间</label>
+                    <label for="alt-speed-time-begin">开始时间{{dataStorage.global['alt-speed-time-begin']}}</label>
                     <select id="alt-speed-time-begin" class="select" ng-model="dataStorage.global['alt-speed-time-begin']">
-                        <option value="2">2</option>
+                        <option ng-repeat="item in dataStorage['speed-limit-times'] track by $index" ng-value="item.value">{{item.key}}</option>
                     </select>
                 </div>
                 <div>
-                    <label for="alt-speed-time-end">结束时间</label>
+                    <label for="alt-speed-time-end">结束时间{{dataStorage.global['alt-speed-time-end']}}</label>
                     <select id="alt-speed-time-end" class="select" ng-model="dataStorage.global['alt-speed-time-end']">
-                        <option value="2">2</option>
+                        <option ng-repeat="item in dataStorage['speed-limit-times'] track by $index" ng-value="item.value">{{item.key}}</option>
                     </select>
                 </div>
                 <div>
-                    <label for="alt-speed-time-day">在下列周期开始计划</label>
-                    <select id="alt-speed-time-day" class="select" ng-modal="dataStorage.global['alt-speed-time-day']">
-                        <option value="2">2</option>
+                    <label for="alt-speed-time-day">在下列周期开始计划{{dataStorage.global['alt-speed-time-day']}}</label>
+                    <select id="alt-speed-time-day" class="select" ng-model="dataStorage.global['alt-speed-time-day']">
+                        <option ng-repeat="item in dataStorage['speed-limit-day'] track by $index" ng-value="item.value">{{item.key}}</option>
                     </select>
                 </div>
             </div>
@@ -108,9 +109,9 @@
             <h3>选项</h3>
             <div>
                 <div>
-                    <label for="encryption">加密模式</label>
+                    <label for="encryption">加密{{dataStorage.global['encryption']}}</label>
                     <select id="encryption" class="select" ng-model="dataStorage.global['encryption']">
-                        <option value="2">2</option>
+                        <option ng-repeat="item in dataStorage['encryption'] track by $index" ng-value="item.value">{{item.key}}</option>
                     </select>
                 </div>
                 <div>
@@ -146,7 +147,7 @@
             <div>
                 <div>
                     <div>
-                        <label>端口 110 已关闭:</label>
+                        <span class="badge">端口 110 已关闭</span>
                         <label for="peer-port">用户监听端口:</label>
                         <input id="peer-port" class="input" type="text" ng-model="dataStorage.global['peer-port']">
                     </div>
