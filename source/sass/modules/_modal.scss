@@ -8,7 +8,7 @@
   background-color: $gray-0;
   display: none;
   opacity: 0;
-  @include css3("transition",all 0.5s);
+  @include css3("transition",opacity 0.5s);
   &.modal-show{
     display: block;
   }
@@ -19,7 +19,7 @@
 .modal{
   background-color: $gray-100;
   position: absolute;
-  top: 30%;
+  top: 40%;
   left: 50%;
   z-index: 21;
   opacity: 0;
@@ -34,6 +34,7 @@
     display: block;
   }
   &.alpha{
+    top: 30%;
     opacity: 1;
   }
   >.title,>.content{
@@ -89,9 +90,12 @@
       height: 50px;
     }
     @media (max-width: 1024px) {
-      top: 40%;
+      top: 45%;
       width: 90%;
       margin: -20% 0 0 -45%;
+      &.alpha{
+        top: 40%;
+      }
     }
   }
   &.size-big{
@@ -103,26 +107,50 @@
     }
   }
   &.size-window{
+    width: 700px;
+    height: 450px;
+    top: 100px;
+    margin: 0 0 0 -350px;
+    &.alpha{
+      top: 50px;
+    }
+    >.content{
+      height: 355px;
+      overflow: hidden;
+      >.tags{
+        @include clearfix;
+        margin-bottom: 10px;
+        >li{
+          float: left;
+          padding: 6px 20px;
+          text-align: center;
+          cursor: pointer;
+          @include css3("transition",all 0.233s);
+          will-change: transition;
+          &:hover{
+            color: $gray-30;
+            //border-bottom: 2px solid $gray-80;
+          }
+          &.selected{
+            border-bottom: 2px solid $prime-blue;
+            color: $gray-0;
+            font-weight: bold;
+          }
+        }
+      }
+      >.tag-content{
+        height: 305px;
+        overflow: auto;
+      }
+    }
     @media (max-width: 1024px) {
-      top: 5%;
+      top: 10%;
       left: 5%;
       width: 90%;
       height: 90%;
       margin: 0 ;
-    }
-  }
-//"type":"tip",//tip,waring,upload,delete,add
-  &.info,&.add,&.upload{
-    >.content{
-      >.icon{
-        color: $prime-green;
-      }
-    }
-  }
-  &.waring{
-    >.content{
-      >.icon{
-        color: $prime-red;
+      &.alpha{
+        top: 5%;
       }
     }
   }
@@ -183,5 +211,65 @@
         }
       }
     }
+  }
+}
+.tags{
+  @include clearfix;
+  margin-bottom: 10px;
+  >li{
+    float: left;
+    padding: 6px 20px;
+    text-align: center;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    @include css3("transition",all 0.5s);
+    will-change: transition;
+    &:hover{
+      color: $gray-30;
+    }
+    &.selected{
+      border-color: $prime-blue;
+      color: $gray-0;
+      font-weight: bold;
+    }
+  }
+}
+.tag-content{
+  height: 305px;
+  overflow: auto;
+  display: none;
+  &.selected{
+    display: block;
+  }
+  >h3,>h4{
+    font-weight: bold;
+    font-size: $font-size-large;
+    color: $gray-40;
+    margin-bottom: 15px;
+    padding: 0 10px;
+  }
+  >div{
+    margin-bottom: 15px;
+    padding: 0 10px;
+    color: $gray-40;
+    >div{
+      margin-bottom: 15px;
+    }
+  }
+  label,input{
+    vertical-align: middle;
+    line-height: 24px;
+  }
+  .input,.select{
+    border-radius: 5px;
+    &:focus{
+      box-shadow: 0 0 5px $prime-blue;
+    }
+    @include border("border",1px,$gray-70);
+    line-height: 20px;
+    padding: 5px 15px;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
   }
 }
