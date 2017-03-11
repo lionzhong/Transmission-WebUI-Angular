@@ -61,7 +61,7 @@
         </p>
     </div>
     <ul>
-        <li ng-repeat="item in nav.menudata.name track by $index" ng-if="getScreenWidth() <=  1024 ? $index < 3:true" ng-click="nav.close($index)">
+        <li ng-repeat="item in nav.menudata.name track by $index" ng-if="getScreenWidth() <=  1024 ? item !== '查看传输明细':true" ng-click="nav.close($index);$event.stopPropagation();">
             <span ng-class="nav.menudata.className[$index]"></span>
             <i>{{item}}</i>
         </li>
@@ -92,7 +92,7 @@
         <section ng-include src="tmpUrl.detail" ng-if="dataStorage.selectedIndex !== ''" include-replace></section>
     </div>
 </section>
-<div ng-include src="tmpUrl.modal" class="modal" ng-if="tmpUrl.modal !== ''" include-replace></div>
+<div ng-include="modal.tmp" class="modal" ng-if="modal.status === true" include-replace></div>
 <script src="libs/requirejs/require.min.js"  data-main="load.js"></script>
 </body>
 </html>
