@@ -12,13 +12,15 @@
 
 @font-face {
     font-family: 'transmission';
-    src:  url('../fonts/transmission.eot?s7bi7e');
-    src:  url('../fonts/transmission.eot?s7bi7e#iefix') format('embedded-opentype'),
-    url('../fonts/transmission.ttf?s7bi7e') format('truetype'),
-    url('../fonts/transmission.woff?s7bi7e') format('woff'),
-    url('../fonts/transmission.svg?s7bi7e#transmission') format('svg');
+    src:  url('../fonts/transmission.eot?2y7emi');
+    src:  url('../fonts/transmission.eot?2y7emi#iefix') format('embedded-opentype'),
+    url('../fonts/transmission.ttf?2y7emi') format('truetype'),
+    url('../fonts/transmission.woff?2y7emi') format('woff'),
+    url('../fonts/transmission.svg?2y7emi#transmission') format('svg');
     font-weight: normal;
     font-style: normal;
+
+
 }
 
 [class^="icon-"], [class*=" icon-"] {
@@ -105,25 +107,30 @@
 .icon-scheduled:before {
     content: "\e916";
 }
-.icon-server:before {
+.icon-search:before {
     content: "\e917";
 }
-.icon-settings:before {
+.icon-server:before {
     content: "\e918";
 }
-.icon-start-all-light:before {
+.icon-settings:before {
     content: "\e919";
 }
-.icon-start-deep:before {
+.icon-start-all-light:before {
     content: "\e91a";
 }
-.icon-start-light:before {
+.icon-start-deep:before {
     content: "\e91b";
 }
-.icon-timer:before {
+.icon-start-light:before {
     content: "\e91c";
 }
-.icon-upload:before {
+.icon-timelapse:before {
     content: "\e91d";
 }
-
+.icon-timer:before {
+    content: "\e91e";
+}
+.icon-upload:before {
+    content: "\e91f";
+}

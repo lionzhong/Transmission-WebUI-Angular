@@ -1,0 +1,21 @@
+<div id="modal-bg" class="modal-bg" ng-class="{'modal-show':modal.status}" ng-click="modal.close()"></div>
+<div id="modal" class="modal modal-notitle size-big" ng-class="{'modal-show':modal.status}" ng-click="$event.stopPropagation();">
+    <div class="content about">
+        <img src="dist/img/logo192.png" alt="{{'Transmission ' + dataStorage.global.version}}" title="{{'Transmission ' + dataStorage.global.version}}">
+        <p>
+            Transmission {{dataStorage.global.version}}
+        </p>
+        <p>
+            快速、简单易用的 BitTorrent 客户端
+        </p>
+        <p>
+            Copyright (c) <a target="_blank" href="https://transmissionbt.com/">Transmission</a> 项目版权所有
+        </p>
+        <p>
+            AngularJS 版本UI由 <a target="_blank" href="https://github.com/lionzhong/Transmission-WebUI-Angular">lionzhong</a> 开发
+        </p>
+    </div>
+    <div class="btn-row display-cancel-btn">
+        <div class="cancel" ng-click="modal.close()">{{modal.btnText.cancel}}</div>
+    </div>
+</div>

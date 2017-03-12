@@ -1,10 +1,58 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-
-</body>
-</html>
+<div id="modal-bg" class="modal-bg" ng-class="{'modal-show':modal.status}" ng-click="modal.close()"></div>
+<div id="modal" class="modal modal-notitle size-big statics" ng-class="{'modal-show':modal.status}" ng-click="$event.stopPropagation();">
+    <div class="content">
+        <h2>当前会话</h2>
+        <div class="table">
+            <table>
+                <tbody>
+                <tr>
+                    <th style="width: 200px;">已上传：</th>
+                    <td>{{bytesConvert(dataStorage.stats['current-stats'].uploadedBytes)}}</td>
+                </tr>
+                <tr>
+                    <th>已下载：</th>
+                    <td>{{bytesConvert(dataStorage.stats['current-stats'].downloadedBytes)}}</td>
+                </tr>
+                <tr>
+                    <th>分享率：</th>
+                    <td>{{parseFloat2(dataStorage.stats['current-stats'].uploadedBytes/dataStorage.stats['current-stats'].downloadedBytes)}}</td>
+                </tr>
+                <tr>
+                    <th>运行时长：</th>
+                    <td>{{parseEta(dataStorage.stats['current-stats'].secondsActive)}}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <h2>累计</h2>
+        <div class="table">
+            <table>
+                <tbody>
+                <tr>
+                    <th style="width: 200px;">添加过的任务次数：</th>
+                    <td>{{dataStorage.stats['cumulative-stats'].filesAdded}}</td>
+                </tr>
+                <tr>
+                    <th>已上传：</th>
+                    <td>{{bytesConvert(dataStorage.stats['cumulative-stats'].uploadedBytes)}}</td>
+                </tr>
+                <tr>
+                    <th>已下载：</th>
+                    <td>{{bytesConvert(dataStorage.stats['cumulative-stats'].downloadedBytes)}}</td>
+                </tr>
+                <tr>
+                    <th>分享率：</th>
+                    <td>{{parseFloat2(dataStorage.stats['cumulative-stats'].uploadedBytes/dataStorage.stats['cumulative-stats'].downloadedBytes)}}</td>
+                </tr>
+                <tr>
+                    <th>运行时长：</th>
+                    <td>{{parseEta(dataStorage.stats['cumulative-stats'].secondsActive)}}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="btn-row display-cancel-btn">
+        <div class="cancel" ng-click="modal.close()">{{modal.btnText.cancel}}</div>
+    </div>
+</div>

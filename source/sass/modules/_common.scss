@@ -7,9 +7,10 @@ html,body{
 }
 
 .hide{
-  *{
-    display: none;
-  }
+  display: none;
+  //*{
+  //  display: none;
+  //}
 }
 
 .loading {

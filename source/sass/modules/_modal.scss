@@ -34,7 +34,7 @@
     display: block;
   }
   &.alpha{
-    top: 30%;
+    top: 20%;
     opacity: 1;
   }
   >.title,>.content{
@@ -62,14 +62,19 @@
       font-size: 17px;
     }
   }
+  &.modal-notitle{
+    >.content{
+
+    }
+  }
   &.size-big,&.size-window{
     width: 500px;
     height: 300px;
-    margin: -150px 0 0 -250px;
+    margin: 0 0 0 -250px;
     @media (max-width: 1024px) {
       width: 90%;
       height: 60%;
-      margin: -30% 0 0 -45%;
+      margin: 0 0 0 -45%;
       >.content{
         >.icon{
           float: none;
@@ -85,7 +90,7 @@
   &.size-small{
     width: 400px;
     height: 180px;
-    margin: -90px 0 0 -200px;
+    margin: 0 0 0 -200px;
     >.content{
       height: 50px;
     }
@@ -101,8 +106,13 @@
   &.size-big{
     >.content{
       height: 170px;
-      @media (max-width: 1024px) {
+    }
+    @media (max-width: 1024px) {
+      >.content{
         height: 310px;
+      }
+      &.alpha {
+        top: 15%;
       }
     }
   }
@@ -117,30 +127,50 @@
     >.content{
       height: 355px;
       overflow: hidden;
-      >.tags{
-        @include clearfix;
-        margin-bottom: 10px;
-        >li{
-          float: left;
-          padding: 6px 20px;
-          text-align: center;
-          cursor: pointer;
-          @include css3("transition",all 0.233s);
-          will-change: transition;
-          &:hover{
-            color: $gray-30;
-            //border-bottom: 2px solid $gray-80;
-          }
-          &.selected{
-            border-bottom: 2px solid $prime-blue;
-            color: $gray-0;
-            font-weight: bold;
+      position: relative;
+      >div{
+        position: absolute;
+        top: 58px;
+        left: 0;
+        bottom:0;
+        height: auto;
+        overflow: hidden;
+        width: 400%;
+        @include css3("transition",left 0.233s);
+        will-change: transition,left;
+        >.tags{
+          @include clearfix;
+          margin-bottom: 10px;
+          >li{
+            float: left;
+            padding: 6px 20px;
+            text-align: center;
+            cursor: pointer;
+            @include css3("transition",all 0.233s);
+            will-change: transition;
+            &:hover{
+              color: $gray-30;
+              //border-bottom: 2px solid $gray-80;
+            }
+            &.selected{
+              border-bottom: 2px solid $prime-blue;
+              color: $gray-0;
+              font-weight: bold;
+            }
           }
         }
-      }
-      >.tag-content{
-        height: 305px;
-        overflow: auto;
+        &.content1{
+          left: 0;
+        }
+        &.content2{
+          left: -100%;
+        }
+        &.content3{
+          left: -200%;
+        }
+        &.content4{
+          left: -300%;
+        }
       }
     }
     @media (max-width: 1024px) {
@@ -160,14 +190,6 @@
         bottom: 58px;
         height: auto;
         overflow: hidden !important;
-        >.tag-content{
-          position: absolute;
-          top: 38px;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          height: auto;
-        }
       }
     }
   }
@@ -235,15 +257,72 @@
       right: 20px;
     }
   }
+  >.about,>.statics{
+    height: 220px !important;
+    img,p{
+      text-align: center;
+      color: $gray-50;
+      margin-bottom: 0;
+    }
+    img{
+      display: block;
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 20px auto;
+    }
+    a{
+      color: $prime-blue;
+    }
+    @media (max-width: 1024px){
+      height: 280px !important;
+      p{
+        margin-bottom: 10px;
+      }
+    }
+  }
+  &.statics{
+    >.content{
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      right: 20px;
+      bottom: 58px;
+      height: auto !important;
+      h2{
+        color: $gray-0;
+        margin-bottom: 10px;
+      }
+      >.table{
+        margin-bottom: 10px;
+        table{
+          width: 100%;
+        }
+        th,td{
+          font-size: $font-size-large;
+          text-align: left;
+        }
+      }
+    }
+    >.btn-row{
+      position: absolute;
+      left: 20px;
+      right: 20px;
+      bottom: 20px;
+    }
+  }
 }
 .tags{
   @include clearfix;
   margin-bottom: 10px;
+  border-bottom: 2px solid $gray-90;
   >li{
     float: left;
     padding: 6px 20px;
     text-align: center;
     cursor: pointer;
+    position: relative;
+    z-index: 6;
+    top: 2px;
     border-bottom: 2px solid transparent;
     @include css3("transition",all 0.5s);
     will-change: transition;
@@ -258,18 +337,34 @@
   }
 }
 .tag-content{
-  height: 305px;
   overflow: auto;
-  display: none;
   padding: 0 20px;
-  &.selected{
-    display: block;
+  width: 25%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  box-sizing: border-box;
+  &.tag-content1{
+    left: 0;
+  }
+  &.tag-content2{
+    left: 25%;
+  }
+  &.tag-content3{
+    left: 50%;
+  }
+  &.tag-content4{
+    left: 75%;
   }
   >h3,>h4{
     font-weight: bold;
-    font-size: $font-size-large;
+    font-size: ceil($font-size-large*1.18);
     color: $gray-40;
     margin-bottom: 15px;
+  }
+  >h4{
+    font-weight: normal;
+    font-size: ceil($font-size-large);
   }
   >div{
     margin-bottom: 15px;

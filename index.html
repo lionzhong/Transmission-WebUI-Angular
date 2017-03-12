@@ -14,18 +14,18 @@
     <link rel="icon" href="dist/img/logo.png" sizes="384x384" type="image/logo384.png">
     <link rel="icon" href="dist/img/logo.png" sizes="512x512" type="image/logo512.png">
 </head>
-<body ng-controller="mainController" style="touch-action: none;" mn-touch swipe-left="swip.left()" swipe-right="swip.right()" swipe-up="swip.up()">
-<!--<div class="loading" id="loading">-->
-    <!--<div>-->
-        <!--<div class="cssload-thecube">-->
-            <!--<div class="cssload-cube cssload-c1"></div>-->
-            <!--<div class="cssload-cube cssload-c2"></div>-->
-            <!--<div class="cssload-cube cssload-c4"></div>-->
-            <!--<div class="cssload-cube cssload-c3"></div>-->
-        <!--</div>-->
-        <!--<span>正在初始化</span>-->
-    <!--</div>-->
-<!--</div>-->
+<body ng-controller="mainController" style="touch-action: none;" mn-touch swipe-left="swip.left()" swipe-right="swip.right()" swipe-up="swip.up();$event.stopPropagation();">
+<div class="loading" id="loading">
+    <div>
+        <div class="cssload-thecube">
+            <div class="cssload-cube cssload-c1"></div>
+            <div class="cssload-cube cssload-c2"></div>
+            <div class="cssload-cube cssload-c4"></div>
+            <div class="cssload-cube cssload-c3"></div>
+        </div>
+        <span>正在初始化</span>
+    </div>
+</div>
 <header class="header mobile" ng-class="{'mobile-show':consolePanel.status}">
     <div>
         <span class="logo">
@@ -55,20 +55,24 @@
 <nav class="nav" ng-class="{'nav-menu':nav.status}">
     <div>
         <span class="icon-menu" ng-click="nav.toggle()"></span>
-        <p class="hide">
+        <div class="hide">
+            <span class="searchBox" ng-class="{'active':dataStorage.searchText.name !== ''}">
+                <label for="searchBox"><span class="icon-search"></span></label>
+                <input id="searchBox" type="text" ng-model="dataStorage.searchText.name">
+            </span>
             <span class="icon-download"> {{dataStorage.totalSpeed.download !== 0 ?bytesConvert(dataStorage.totalSpeed.download):0}}/s </span>
             <span class="icon-upload"> {{dataStorage.totalSpeed.upload !== 0 ?bytesConvert(dataStorage.totalSpeed.upload):0}}/s </span>
-        </p>
+        </div>
     </div>
     <ul>
-        <li ng-repeat="item in nav.menudata.name track by $index" ng-if="getScreenWidth() <=  1024 ? item !== '查看传输明细':true" ng-click="nav.close($event,$index)">
+        <li ng-repeat="item in nav.menudata.name track by $index" ng-if="getScreenWidth() <=  1024 ? item !== '查看传输明细':true" ng-class="{'active':$index === 1 && dataStorage.global['alt-speed-enabled'] === true}" ng-click="nav.close($event,$index)">
             <span ng-class="nav.menudata.className[$index]"></span>
             <i>{{item}}</i>
         </li>
     </ul>
 </nav>
 <ul id="torrent-list" class="torrent-list">
-    <li ng-repeat="item in dataStorage.torrent track by $index" ng-class="parsTorrentClassName(item.status,$index)" ng-click="selectTorrent($index)" ng-dblclick="getScreenWidth() > 1024 ?detail.show():false;">
+    <li ng-repeat="item in dataStorage.torrent | filter:dataStorage.searchText" ng-class="parsTorrentClassName(item.status,$index)" ng-click="selectTorrent($index)" ng-dblclick="getScreenWidth() > 1024 ?detail.show():false;">
         <div class="name">{{item.name}}</div>
         <div class="status" ng-bind-html="parseText.Status($index)"></div>
         <div class="progess-bar">

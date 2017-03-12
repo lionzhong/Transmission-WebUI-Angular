@@ -268,7 +268,9 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
             blankDetail: baseTmpUrl + "blankdetail.html",
             tips: baseTmpUrl + "modal.html",
             settings: baseTmpUrl + "settings.html",
-            modal:baseTmpUrl + "modal.html"
+            modal:baseTmpUrl + "modal.html",
+            about:baseTmpUrl + "about.html",
+            statics:baseTmpUrl + "statics.html"
         };
 
         //loop pool
@@ -302,8 +304,14 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 "alt-speed-up":0,
                 "alt-speed-time-begin":0,
                 "alt-speed-time-end":0,
-                "alt-speed-time-day":127,
-                "encryption":"tolerated"
+                "alt-speed-time-day":127
+                // "encryption":"tolerated"
+                // "seedRatioLimited":false,
+                // "idle-seeding-limit-enabled":false,
+                // "speed-limit-up-enabled":false,
+                // "speed-limit-down-enabled":false,
+                // "alt-speed-time-enabled":false,
+                // "blocklist-enabled":false
             },
             "torrent": [],
             "selectedIndex": "",
@@ -311,6 +319,9 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
             "ids": [],
             "detail": {},
             "port-test":false,
+            "searchText":{
+                name:""
+            },
             "totalSpeed":{
                 download:0,
                 upload:0
@@ -601,7 +612,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 if($scope.modal.status === true || $scope.consolePanel.status === true || $scope.detail.status === true){
                     return false;
                 }else{
-                    $scope.nav.close();
+                    $scope.nav.close($event);
                 }
             },
             down:function () {
@@ -863,6 +874,12 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                     $scope.detail.close();
                 }
             },
+            "dbshow":function ($event,index) {
+                if($scope.getScreenWidth() > 1024){
+                    $scope.nav.close();
+                    $scope.detail.show();
+                }
+            },
             "close": function() {
                 $scope.detail.status = false;
                 clearInterval($scope.pool.loop.detail);
@@ -1098,6 +1115,12 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
 
                 $("#modal-bg").removeClass(className);
                 $("#modal").removeClass(className);
+
+                //如果是设置页面关闭窗口，并没有保存，则重新轮询session
+                if($scope.modal.tmp === $scope.tmpUrl.settings){
+                    $scope.reload.session();
+                }
+
                 $timeout(function () {
                     $scope.modal.status = false;
                     $scope.modal.tmp = $scope.tmpUrl.modal;
@@ -1111,6 +1134,16 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
         $scope.tag = {
             "name":["种子","速度","用户","网络"],
             "index":0,
+            "swipLeft":function () {
+                if($scope.tag.index < 3 && $scope.getScreenWidth() <= 1024){
+                    $scope.tag.index += 1;
+                }
+            },
+            "swipRight":function () {
+                if($scope.tag.index > 0 && $scope.getScreenWidth() <= 1024){
+                    $scope.tag.index -= 1;
+                }
+            },
             "toggle":function ($index) {
                 // var contents = $("#modal .tag-content");
                 $scope.tag.index = $index;
@@ -1121,8 +1154,8 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
         $scope.nav = {
             status:false,
             menudata:{
-                name:["设置","计划任务运行","收缩视图","查看传输明细","统计","关于","捐助"],
-                className:["icon-settings","icon-scheduled","icon-listview","icon-info-black","icon-data_usage","icon-goat","icon-detele-all"]
+                name:["设置","计划任务运行","收缩视图","查看传输明细","统计","关于"],
+                className:["icon-settings","icon-scheduled","icon-listview","icon-info-black","icon-data_usage","icon-goat"]
             },
             toggle:function () {
                 if($scope.allLoaded === false){
@@ -1134,38 +1167,70 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 $scope.nav.status = true;
             },
             close:function ($event,index) {
-                $event.stopPropagation();
-                $scope.nav.status = false;
-                if(index === 0){
-                    clearInterval($scope.pool.loop.session);
-                    ajaxService.portTest($scope.dataStorage.session).then(function (response) {
-                        $scope.dataStorage["port-test"] = response.data["arguments"]["port-is-open"];
-                    },function (reason) {
-                        $scope.modal.show({
-                            type:"waring",
-                            title:"端口是否开启检测失败",
-                            content:"请检查您的网络是否顺畅！",
-                            btnType : 1
-                        });
-                    });
-                    $scope.modal.show({
-                        type:"window",
-                        tmp:$scope.tmpUrl.settings,
-                        btnType : 2,
-                        submitFunc : function () {
-                            var param = {};
-                            _.each($scope.dataStorage.global,function (value,key) {
-                                if(value !== $scope.dataStorage.globalOrignal[key]){
-                                    param[key] = value;
-                                }
-                            });
-                            $scope.submitSettings(param);
-                        }
-                    });
+                if($event){
+                    $event.stopPropagation();
                 }
 
-                if(index === 3){
-                    $scope.detail.show();
+                $scope.nav.status = false;
+
+                switch (index){
+                    case 0:
+                        clearInterval($scope.pool.loop.session);
+                        ajaxService.portTest($scope.dataStorage.session).then(function (response) {
+                            $scope.dataStorage["port-test"] = response.data["arguments"]["port-is-open"];
+                        },function (reason) {
+                            $scope.modal.show({
+                                type:"waring",
+                                title:"端口是否开启检测失败",
+                                content:"请检查您的网络是否顺畅！",
+                                btnType : 1
+                            });
+                        });
+                        $scope.modal.show({
+                            type:"window",
+                            tmp:$scope.tmpUrl.settings,
+                            btnType : 2,
+                            submitFunc : function () {
+                                var param = {};
+                                _.each($scope.dataStorage.global,function (value,key) {
+                                    if(value !== $scope.dataStorage.globalOrignal[key]){
+                                        param[key] = value;
+                                    }
+                                });
+                                $scope.submitSettings(param);
+                            }
+                        });
+                        break;
+                    case 1:
+                        var params = {"alt-speed-enabled":$scope.dataStorage.global["alt-speed-enabled"] !== true};
+                        ajaxService.saveSettings($scope.dataStorage.session, params).then(function(response) {
+                            $scope.reload.session();
+                        }, function(reason) {
+                            $scope.modal.show({
+                                type:"waring",
+                                title:(params["alt-speed-enabled"] === true?"打开":"关闭") + "计划任务失败！",
+                                content:"请检查您的网络是否顺畅，或点击确定再此尝试保存！",
+                                btnType : 1
+                            });
+                        });
+                        break;
+                    case 3:
+                        $scope.detail.show();
+                        break;
+                    case 4:
+                        $scope.modal.show({
+                            type:"tip",
+                            tmp:$scope.tmpUrl.statics,
+                            btnType : 1
+                        });
+                        break;
+                    case 5:
+                        $scope.modal.show({
+                            type:"tip",
+                            tmp:$scope.tmpUrl.about,
+                            btnType : 1
+                        });
+                        break;
                 }
             },
             parseMenuVisible:function ($index) {
@@ -1203,7 +1268,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
 
         $scope.init = function() {
 
-            if($scope.getScreenWidth() >= 1024){
+            // if($scope.getScreenWidth() >= 1024){
                 // var doc = window.document;
                 // var docEl = doc.documentElement;
                 //
@@ -1216,7 +1281,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 // else {
                 //     cancelFullScreen.call(doc);
                 // }
-            }
+            // }
 
             //load local data
             $scope.localMode = false;
@@ -1278,7 +1343,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
             //     type:"waring",
             //     title:"一分钟内请求Session失败次数过多",
             //     content:"请检查您的网络是否顺畅，或点击确定通过刷新尝试解决！",
-            //     size:"small",
+            //     size:"big",
             //     btnType : 2,
             //     submitFunc : function () {
             //         $window.location.reload();

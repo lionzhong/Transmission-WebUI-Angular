@@ -5,7 +5,6 @@
   right: 15px;
   box-shadow:none;
   z-index: 13;
-  width: 300px;
   >div{
     >[class^="icon-"], >[class*=" icon-"]{
       position: absolute;
@@ -20,13 +19,68 @@
         color: lighten($prime-blue,50%);
       }
     }
-    >p{
+    >div{
+      margin-right: 43px;
       color: $gray-70;
-      position: absolute;
-      top: 2px;
-      right: ceil($font-size-large*1.8 + 10);
       line-height: 26px;
       font-size: $font-size-large;
+      >span{
+        vertical-align: baseline;
+        display: inline-block;
+      }
+      .searchBox{
+        position: relative;
+        width: 190px;
+        margin-right: 10px;
+        top: -2px;
+        >label{
+          position: absolute;
+          top:2px;
+          left: 0;
+          color: $gray-40;
+          @include css3("transition",color 0.233s);
+        }
+        >input{
+          border: none;
+          border-bottom: 1px solid $gray-40;
+          padding: 0 10px 2px 20px;
+          background-color: transparent;
+          color: $gray-40;
+          @include css3("transition",border-bottom-color 0.233s);
+          box-sizing: border-box;
+          width: 190px;
+          &:focus{
+            outline: none;
+            //border-bottom-color: $gray-100;
+          }
+        }
+        &:hover{
+          >label{
+            color: $gray-100;
+          }
+          >input{
+            color: $gray-100;
+            border-bottom-color: $gray-100;
+          }
+        }
+        &.active{
+          >label,>input{
+            color: $gray-100;
+          }
+          >input{
+            border-bottom-color: $gray-100;
+          }
+        }
+      }
+      @media (max-width: 1024px){
+        margin: 0;
+        position: absolute;
+        top: 12px;
+        right: 15px;
+        .searchBox{
+          display: none;
+        }
+      }
     }
   }
   >ul{
@@ -48,6 +102,7 @@
       background-color: rgba(0,0,0,0.8);
       transition: color 0.233s,background-color 0.233s;
       will-change: trasition;
+      position: relative;
       >span{
         margin-right: 15px;
         line-height: 16px;
@@ -63,6 +118,28 @@
       &:last-child{
         border-radius: 0 0 5px 5px;
       }
+      &.active{
+        color: lighten($prime-blue,30%);
+        background-color: #3d434b;
+        &:after{
+          background-color: $prime-blue;
+          animation: actived 1.5s infinite;
+          content: "";
+          display: block;
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          left: 0;
+          width: 4px;
+          @media (max-width: 1024px){
+            //width: 16px;
+            //height: 16px;
+            //border-radius: 16px;
+            //top: 14px;
+            //right: 18px;
+          }
+        }
+      }
     }
   }
   &.nav-menu{
@@ -73,7 +150,7 @@
     }
     >ul{
       top: 40px;
-      height: 319px;
+      height: 274px;
     }
   }
   @media (max-width: 1024px) {
@@ -120,6 +197,9 @@
         box-sizing: border-box;
         background-color: $gray-20;
         @include border("border-top",1px,$gray-30);
+        &:hover{
+          background-color: $gray-20;
+        }
         &:first-child{
           border-radius: 0;
         }
@@ -155,8 +235,21 @@
         left: 0;
         width: 100%;
         top: 47px;
-        height: 279px;
+        height: 232px;
       }
     }
+  }
+}
+
+@keyframes actived
+{
+  0% {
+    background-color: $prime-blue;
+  }
+  50% {
+    background-color: $prime-green;
+  }
+  100% {
+    background-color: $prime-blue;
   }
 }
