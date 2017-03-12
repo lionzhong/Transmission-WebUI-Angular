@@ -11,15 +11,15 @@
                     <div>
                         <span class="badge">可用容量：{{bytesConvert(dataStorage.global['download-dir-free-space'])}}</span>
                         <label for="download-dir">下载目录</label>
-                        <input id="download-dir" class="input" type="text" ng-model="dataStorage.global['download-dir']">
+                        <input id="download-dir" name="download-dir" class="input" type="text" ng-model="dataStorage.global['download-dir']">
                     </div>
                     <div>
                         <div>
-                            <input id="start-added-torrents" class="checkbox" type="checkbox" ng-model="dataStorage.global['start-added-torrents']">
+                            <input id="start-added-torrents" name="start-added-torrents" class="checkbox" type="checkbox" ng-model="dataStorage.global['start-added-torrents']">
                             <label for="start-added-torrents">添加完成后直接开始下载</label>
                         </div>
                         <div>
-                            <input id="rename-partial-files" class="checkbox" type="checkbox" ng-model="dataStorage.global['rename-partial-files']">
+                            <input id="rename-partial-files" name="rename-partial-files" class="checkbox" type="checkbox" ng-model="dataStorage.global['rename-partial-files']">
                             <label for="rename-partial-files">对未完成的文件添加 ".part" 后缀名</label>
                         </div>
                     </div>
@@ -27,14 +27,14 @@
                 <h3>做种</h3>
                 <div>
                     <div>
-                        <input id="seedRatioLimited" class="checkbox" type="checkbox" ng-model="dataStorage.global['seedRatioLimited']">
+                        <input id="seedRatioLimited" name="seedRatioLimited" class="checkbox" type="checkbox" ng-model="dataStorage.global['seedRatioLimited']">
                         <label for="seedRatioLimited">达到此分享率时停止做种:</label>
-                        <input id="seedRatioLimit" class="input" type="text" ng-disabled="dataStorage.global['seedRatioLimited'] === false" ng-model="dataStorage.global['seedRatioLimit']">
+                        <input id="seedRatioLimit" name="seedRatioLimit" class="input" type="text" ng-disabled="dataStorage.global['seedRatioLimited'] === false" ng-model="dataStorage.global['seedRatioLimit']">
                     </div>
                     <div>
-                        <input id="idle-seeding-limit-enabled" class="checkbox" type="checkbox" ng-model="dataStorage.global['idle-seeding-limit-enabled']">
+                        <input id="idle-seeding-limit-enabled" name="idle-seeding-limit-enabled" class="checkbox" type="checkbox" ng-model="dataStorage.global['idle-seeding-limit-enabled']">
                         <label for="idle-seeding-limit-enabled">到达此时长以后停止做种:</label>
-                        <input id="idle-seeding-limit" class="input" type="text" ng-disabled="dataStorage.global['idle-seeding-limit-enabled'] === false" ng-model="dataStorage.global['idle-seeding-limit']">
+                        <input id="idle-seeding-limit" name="idle-seeding-limit" class="input" type="text" ng-disabled="dataStorage.global['idle-seeding-limit-enabled'] === false" ng-model="dataStorage.global['idle-seeding-limit']">
                     </div>
                 </div>
             </section>
@@ -42,14 +42,14 @@
                 <h3>限速</h3>
                 <div>
                     <div>
-                        <input id="speed-limit-up-enabled" class="checkbox" type="checkbox" ng-model="dataStorage.global['speed-limit-up-enabled']">
+                        <input id="speed-limit-up-enabled" name="speed-limit-up-enabled" class="checkbox" type="checkbox" ng-model="dataStorage.global['speed-limit-up-enabled']">
                         <label for="speed-limit-up-enabled">上传（KB/s）</label>
-                        <input class="input" type="text" ng-disabled="dataStorage.global['speed-limit-up-enabled'] === false" ng-model="dataStorage.global['speed-limit-up']">
+                        <input class="input" type="text" name="speed-limit-up" ng-disabled="dataStorage.global['speed-limit-up-enabled'] === false" ng-model="dataStorage.global['speed-limit-up']">
                     </div>
                     <div>
-                        <input id="speed-limit-down-enabled" class="checkbox" type="checkbox" ng-model="dataStorage.global['speed-limit-down-enabled']">
+                        <input id="speed-limit-down-enabled" name="speed-limit-down-enabled" class="checkbox" type="checkbox" ng-model="dataStorage.global['speed-limit-down-enabled']">
                         <label for="speed-limit-down-enabled">下载（KB/s）</label>
-                        <input class="input" type="text" ng-disabled="dataStorage.global['speed-limit-down-enabled'] === false" ng-model="dataStorage.global['speed-limit-down']">
+                        <input name="speed-limit-down" class="input" type="text" ng-disabled="dataStorage.global['speed-limit-down-enabled'] === false" ng-model="dataStorage.global['speed-limit-down']">
                     </div>
                 </div>
                 <h3>计划性限速</h3>
@@ -57,31 +57,31 @@
                 <div>
                     <div>
                         <label for="alt-speed-up">上传（KB/s）</label>
-                        <input id="alt-speed-up" class="input" type="text" ng-model="dataStorage.global['alt-speed-up']">
+                        <input id="alt-speed-up" name="alt-speed-up" class="input" type="text" ng-model="dataStorage.global['alt-speed-up']">
                     </div>
                     <div>
                         <label for="alt-speed-down">下载（KB/s）</label>
-                        <input id="alt-speed-down" class="input" type="text" ng-model="dataStorage.global['alt-speed-down']">
+                        <input id="alt-speed-down" name="alt-speed-down" class="input" type="text" ng-model="dataStorage.global['alt-speed-down']">
                     </div>
                     <div>
-                        <input id="alt-speed-time-enabled" class="checkbox" type="checkbox" ng-model="dataStorage.global['alt-speed-time-enabled']">
+                        <input id="alt-speed-time-enabled" name="alt-speed-time-enabled" class="checkbox" type="checkbox" ng-model="dataStorage.global['alt-speed-time-enabled']">
                         <label for="alt-speed-time-enabled">计划时段:</label>
                     </div>
                     <div>
                         <label for="alt-speed-time-begin">开始时间</label>
-                        <select id="alt-speed-time-begin" class="select" ng-disabled="dataStorage.global['alt-speed-time-enabled'] === false" ng-model="dataStorage.global['alt-speed-time-begin']">
+                        <select id="alt-speed-time-begin" class="select" name="alt-speed-time-begin" ng-disabled="dataStorage.global['alt-speed-time-enabled'] === false" ng-model="dataStorage.global['alt-speed-time-begin']">
                             <option ng-repeat="item in dataStorage['speed-limit-times'] track by $index" ng-value="item.value">{{item.key}}</option>
                         </select>
                     </div>
                     <div>
                         <label for="alt-speed-time-end">结束时间</label>
-                        <select id="alt-speed-time-end" class="select" ng-disabled="dataStorage.global['alt-speed-time-enabled'] === false" ng-model="dataStorage.global['alt-speed-time-end']">
+                        <select id="alt-speed-time-end" name="alt-speed-time-end" class="select" ng-disabled="dataStorage.global['alt-speed-time-enabled'] === false" ng-model="dataStorage.global['alt-speed-time-end']">
                             <option ng-repeat="item in dataStorage['speed-limit-times'] track by $index" ng-value="item.value">{{item.key}}</option>
                         </select>
                     </div>
                     <div>
                         <label for="alt-speed-time-day">在下列周期开始计划</label>
-                        <select id="alt-speed-time-day" class="select" ng-disabled="dataStorage.global['alt-speed-time-enabled'] === false" ng-model="dataStorage.global['alt-speed-time-day']">
+                        <select id="alt-speed-time-day" name="alt-speed-time-day" class="select" ng-disabled="dataStorage.global['alt-speed-time-enabled'] === false" ng-model="dataStorage.global['alt-speed-time-day']">
                             <option ng-repeat="item in dataStorage['speed-limit-day'] track by $index" ng-value="item.value">{{item.key}}</option>
                         </select>
                     </div>
@@ -93,11 +93,11 @@
                     <div>
                         <div>
                             <label for="peer-limit-per-torrent">每个任务的最大用户数:</label>
-                            <input id="peer-limit-per-torrent" class="input" type="text" ng-model="dataStorage.global['peer-limit-per-torrent']">
+                            <input id="peer-limit-per-torrent" name="peer-limit-per-torrent" class="input" type="text" ng-model="dataStorage.global['peer-limit-per-torrent']">
                         </div>
                         <div>
                             <label for="peer-limit-global">所有任务最大用户数:</label>
-                            <input id="peer-limit-global" class="input" type="text" ng-model="dataStorage.global['peer-limit-global']">
+                            <input id="peer-limit-global" name="peer-limit-global" class="input" type="text" ng-model="dataStorage.global['peer-limit-global']">
                         </div>
                     </div>
                 </div>
@@ -105,21 +105,21 @@
                 <div>
                     <div>
                         <label for="encryption">加密</label>
-                        <select id="encryption" class="select" ng-model="dataStorage.global['encryption']">
+                        <select id="encryption" name="encryption" class="select" ng-model="dataStorage.global['encryption']">
                             <option ng-repeat="item in dataStorage['encryption'] track by $index" ng-value="item.value">{{item.key}}</option>
                         </select>
                     </div>
                     <div>
                         <div>
-                            <input id="pex-enabled" class="checkbox" type="checkbox" ng-model="dataStorage.global['pex-enabled']">
+                            <input id="pex-enabled" name="pex-enabled" class="checkbox" type="checkbox" ng-model="dataStorage.global['pex-enabled']">
                             <label for="pex-enabled">使用 PEX 获取更多的用户</label>
                         </div>
                         <div>
-                            <input id="dht-enabled" class="checkbox" type="checkbox" ng-model="dataStorage.global['dht-enabled']">
+                            <input id="dht-enabled" name="dht-enabled" class="checkbox" type="checkbox" ng-model="dataStorage.global['dht-enabled']">
                             <label for="dht-enabled">使用 DHT 获取更多的用户</label>
                         </div>
                         <div>
-                            <input id="lpd-enabled" class="checkbox" type="checkbox" ng-model="dataStorage.global['lpd-enabled']">
+                            <input id="lpd-enabled" name="lpd-enabled" class="checkbox" type="checkbox" ng-model="dataStorage.global['lpd-enabled']">
                             <label for="lpd-enabled">使用 LPD 获取更多的用户</label>
                         </div>
                     </div>
@@ -127,13 +127,13 @@
                 <h3>拦截列表</h3>
                 <div>
                     <div>
-                        <input id="blocklist-enabled" class="checkbox" type="checkbox" ng-model="dataStorage.global['blocklist-enabled']">
+                        <input id="blocklist-enabled" name="blocklist-enabled" class="checkbox" type="checkbox" ng-model="dataStorage.global['blocklist-enabled']">
                         <label for="blocklist-enabled">开启拦截列表:</label>
-                        <input id="blocklist-url" class="input" type="text" ng-disabled="dataStorage.global['blocklist-enabled'] === false" ng-model="dataStorage.global['blocklist-url']">
+                        <input id="blocklist-url" name="blocklist-url" class="input" type="text" ng-disabled="dataStorage.global['blocklist-enabled'] === false" ng-model="dataStorage.global['blocklist-url']">
                     </div>
                     <div>
                         拦截列表有 0 条规则
-                        <button ng-disabled="dataStorage.global['blocklist-enabled'] === false">update</button>
+                        <button id="blocklist-btn" name="blocklist-btn" ng-disabled="dataStorage.global['blocklist-enabled'] === false">update</button>
                     </div>
                 </div>
             </section>

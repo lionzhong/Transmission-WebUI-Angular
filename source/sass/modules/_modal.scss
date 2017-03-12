@@ -310,6 +310,44 @@
       bottom: 20px;
     }
   }
+  &.add{
+    height: 360px !important;
+    >.content{
+      height: 230px !important;
+      >div{
+        margin-bottom: 5px;
+      }
+      label{
+        display: inline-block;
+        color: $gray-50;
+        >span{
+          font-size: $font-size-base;
+          color: $gray-60;
+        }
+      }
+      .input,.file{
+        border-radius: 5px;
+        background-color: $gray-100;
+        &:focus{
+          box-shadow: 0 0 5px $prime-blue;
+        }
+        @include border("border",1px,$gray-70);
+        line-height: 20px;
+        padding: 5px 15px;
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+        &:disabled{
+          color: $gray-60;
+          background-color: $gray-90;
+        }
+      }
+      .file{
+        padding: 5px 0;
+        border: none;
+      }
+    }
+  }
 }
 .tags{
   @include clearfix;
@@ -380,6 +418,7 @@
   }
   .input,.select{
     border-radius: 5px;
+    background-color: $gray-100;
     &:focus{
       box-shadow: 0 0 5px $prime-blue;
     }
@@ -389,6 +428,10 @@
     display: block;
     width: 100%;
     box-sizing: border-box;
+    &:disabled{
+      color: $gray-60;
+      background-color: $gray-90;
+    }
   }
   .badge{
     float: right;

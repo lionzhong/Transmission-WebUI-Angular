@@ -138,16 +138,27 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
 
         service.getDetail = function(sessionId, ids) {
             return ajax({
-                sessionId: sessionId,
-                param: {
+                "sessionId": sessionId,
+                "param": {
                     "method": "torrent-get",
                     "arguments": {
                         "fields": _.concat(serviceAruments.all,serviceAruments.detailSame),
                         "ids": ids
                     }
                 },
-                url: "?type=getDetail",
-                cancel: true
+                "url": "?type=getDetail",
+                "cancel": true
+            });
+        };
+
+        service.addTransform = function(sessionId,params) {
+            return ajax({
+                sessionId: sessionId,
+                param: {
+                    "method": "torrent-add",
+                    "arguments":params
+                },
+                url: "?type=torrent-add"
             });
         };
 
@@ -155,7 +166,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
             return ajax({
                 sessionId: sessionId,
                 param: {
-                    method: "torrent-start"
+                    "method": "torrent-start"
                 },
                 url: "?type=startTorrent"
             });
@@ -265,12 +276,13 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
         var baseTmpUrl = "template/";
         $scope.tmpUrl = {
             detail: baseTmpUrl + "detail.html",
-            blankDetail: baseTmpUrl + "blankdetail.html",
+            blankDetail: baseTmpUrl + "blankDetail.html",
             tips: baseTmpUrl + "modal.html",
             settings: baseTmpUrl + "settings.html",
             modal:baseTmpUrl + "modal.html",
             about:baseTmpUrl + "about.html",
-            statics:baseTmpUrl + "statics.html"
+            statics:baseTmpUrl + "statics.html",
+            addFiles:baseTmpUrl + "addFiles.html"
         };
 
         //loop pool
@@ -366,7 +378,13 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 {"key":"允许加密","value":"tolerated"},
                 {"key":"喜欢加密","value":"preferred"},
                 {"key":"需要加密","value":"required"}
-            ]
+            ],
+            "addTransform":{
+                "metainfo":[],
+                "filename":"",
+                "download-dir":"123123",
+                "paused":true
+            }
         };
 
         $scope.loopFragment = {
@@ -646,6 +664,9 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 case 0:
                     className = "paused";
                     break;
+                case 2:
+                    className = "rechecking";
+                    break;
                 case 4:
                     className = "downloading";
                     break;
@@ -722,6 +743,15 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                         // className = "paused";
                         html += "已暂停";
                         break;
+                    case 1:
+                        //磁性链接
+                        // className = "valMetaData";
+                        // html += "已暂停";
+                        break;
+                    case 2:
+                        html += "正在验证本底数据";
+                        html += "<span>(" + (data.recheckProgress < 1 ? tr.parseFloat2(data.recheckProgress * 100) : "100") + "% 已验证)</span>";
+                        break;
                     case 4:
                         html += "下载自";
                         html += "<span>" + data.peersSendingToUs + "/" + data.peersConnected + "个用户</span>";
@@ -759,12 +789,33 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                             html += "下载元数据（" + (data.metadataPercentComplete < 1 ? tr.parseFloat2(data.metadataPercentComplete * 100) : "100") + "%）";
                             html += "</span>";
                         } else {
-                            html += "已下载";
                             html += "<span>";
                             html += $scope.bytesConvert(data.totalSize * (data.percentDone < 1 ? data.percentDone : 1)) + "/" + $scope.bytesConvert(data.totalSize);
                             html += "</span>";
                             html += "<span>";
                             html += "(" + (data.percentDone < 1 ? tr.parseFloat2(data.percentDone * 100) : "100") + "%)";
+                            html += "</span>";
+                        }
+                        break;
+                    case 2:
+                        html += "已下载";
+                        html += "<span>";
+                        html += $scope.bytesConvert(data.totalSize * (data.percentDone < 1 ? data.percentDone : 1)) + "/" + $scope.bytesConvert(data.totalSize);
+                        html += "</span>";
+                        html += "<span>";
+                        html += "(" + (data.percentDone < 1 ? tr.parseFloat2(data.percentDone * 100) : "100") + "%)";
+                        html += "</span>";
+                        if (data.uploadedEver > 0) {
+                            html += "<span>";
+                            html += "已上传";
+                            html += "</span>";
+                            html += "<span>";
+                            html += $scope.bytesConvert(data.uploadedEver);
+                            html += "</span>";
+                        }
+                        if ($scope.getScreenWidth() > 1024) {
+                            html += "<span>";
+                            html += "预估剩余时间：" + $scope.parseEta(data.eta);
                             html += "</span>";
                         }
                         break;
@@ -962,20 +1013,110 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
             return result;
         };
 
+        $scope.addTransform = function () {
+            $scope.dataStorage.addTransform.paused = true;
+            $scope.dataStorage.addTransform['download-dir'] = $scope.dataStorage.global['download-dir'];
+            $scope.modal.show({
+                type:"add",
+                size:"big",
+                title:"添加任务",
+                tmp:$scope.tmpUrl.addFiles,
+                submitFunc:function () {
+                    $scope.modal.close();
+                    var filename = angular.element("#addTorrentUrl")[0].value;
+                    if(filename !== "" && filename !== undefined && filename !== null){
+                        var params = {
+                            'paused': $scope.dataStorage.addTransform.paused,
+                            'download-dir': $scope.dataStorage.addTransform['download-dir'],
+                            'filename': filename
+                        };
+
+                        ajaxService.addTransform($scope.dataStorage.session,params).then(function () {
+                            $scope.reload.torrent();
+                            $scope.reload.session();
+                        },function (reason) {
+                            $scope.modal.show({
+                                type:"waring",
+                                title:"任务添加失败",
+                                content:value.name + reason.data.result,
+                                size:"small",
+                                btnType : 1
+                            });
+                        });
+                    }else{
+                        var arr = [];
+                        var files = angular.element("#addTorrentFiles")[0].files;
+                        var err = [];
+                        var promiseFlag = false;
+                        var errFlag = false;
+                        _.each(files,function (value, $index) {
+                            var reader = new FileReader();
+                            reader.onload = function(e) {
+                                var contents = e.target.result;
+                                var key = "base64,";
+                                var index = contents.indexOf (key);
+                                if (index > -1) {
+                                    var metainfo = contents.substring (index + key.length);
+                                    var params = {
+                                        'paused': $scope.dataStorage.addTransform.paused,
+                                        'download-dir': $scope.dataStorage.addTransform['download-dir'],
+                                        'metainfo': metainfo
+                                    };
+
+                                    arr[$index] = ajaxService.addTransform($scope.dataStorage.session,params).then(function () {
+                                        if(arr.length === files.length && promiseFlag === false){
+                                            setTimeout(function () {
+                                                $scope.reload.torrent();
+                                                $scope.reload.session();
+                                            },3000);
+                                            promiseFlag = true;
+                                        }
+                                    },function (reason) {
+                                        if(arr.length === files.length && errFlag === false){
+                                            errFlag = true;
+                                            $scope.modal.show({
+                                                type:"waring",
+                                                title:"任务添加失败",
+                                                content:err.join(";"),
+                                                size:"small",
+                                                btnType : 1
+                                            });
+                                        }else{
+                                            err[$index] = value.name + reason.data.result;
+                                        }
+                                    });
+                                }
+                            };
+                            reader.readAsDataURL (value);
+                        });
+                    }
+                }
+            });
+        };
+
         $scope.removeFromList = function(ids) {
             if (validationIDS(ids) === false) {
                 return false;
             }
             // $scope.dataStorage.session
-            ajaxService.removeFromList($scope.dataStorage.session, ids).then(function(response) {
-                $scope.reload.torrent();
-            }, function(reason) {
-                $scope.modal.show({
-                    type:"waring",
-                    title:"从下载列表中移除任务失败",
-                    content:"请检查您的网络是否顺畅！",
-                    btnType : 1
-                });
+            $scope.modal.show({
+                type:"waring",
+                title:"确定要从传输任务列表中删除"+ (ids.length > 1?"这些":"此") +"任务吗？",
+                content:ids.length > 1?"已选中多个任务":$scope.dataStorage.torrent[$scope.dataStorage.selectedIndex].name,
+                btnType : 2,
+                submitFunc:function () {
+                    $scope.modal.close();
+                    ajaxService.removeFromList($scope.dataStorage.session, ids).then(function(response) {
+                        $scope.reload.torrent();
+                    }, function(reason) {
+                        $scope.modal.show({
+                            type:"waring",
+                            title:"从下载列表中移除任务失败",
+                            content:"请检查您的网络是否顺畅！",
+                            btnType : 1
+                        });
+                    });
+                }
             });
         };
 

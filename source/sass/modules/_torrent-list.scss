@@ -54,6 +54,15 @@
     }
     >.transform-data{
     }
+    &.rechecking{
+      >.progess-bar{
+        >div{
+          background-color: $prime-red;
+          animation: rechecking 1.5s infinite;
+          will-change: animation;
+        }
+      }
+    }
     &.downloading{
       >.progess-bar{
         >div{
@@ -136,5 +145,18 @@
   }
   100% {
     background-color: $prime-blue;
+  }
+}
+
+@keyframes rechecking
+{
+  0% {
+    background-color: $prime-red;
+  }
+  50% {
+    background-color: lighten($prime-red,10%);
+  }
+  100% {
+    background-color: $prime-red;
   }
 }

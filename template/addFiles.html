@@ -1,0 +1,27 @@
+<div id="modal-bg" class="modal-bg" ng-class="{'modal-show':modal.status}" ng-click="modal.close()"></div>
+<div id="modal" class="modal" ng-class="{'modal-show':modal.status,'add':modal.type === 'add','size-big':modal.size === 'big'}" ng-click="$event.stopPropagation();">
+    <div class="title">{{modal.title}}</div>
+    <div class="content">
+        <div>
+            <label for="addTorrentFiles">选择种子文件上传</label>
+            <input id="addTorrentFiles" name="addTorrentFiles" type="file" class="file" ng-model="dataStorage.addTransform.files" multiple="multiple">
+        </div>
+        <div>
+            <label for="addTorrentUrl">或者输入URL</label>
+            <input id="addTorrentUrl" name="addTorrentUrl" type="url" class="input">
+        </div>
+        <div>
+            <label for="addTorrentLocation">存储位置 <span>可用存储空间（{{bytesConvert(dataStorage.global['download-dir-free-space'])}}）</span></label>
+            <input id="addTorrentLocation" name="addTorrentLocation" type="text" class="input" ng-model="dataStorage.addTransform['download-dir']">
+        </div>
+        <div>
+            <input id="startWhenAdded" name="startWhenAdded" type="checkbox" class="checkbox" ng-model="dataStorage.addTransform.paused">
+            <label for="startWhenAdded" type="checkbox">添加后直接开始下载</label>
+        </div>
+    </div>
+    <div class="btn-row display-all-btn">
+        <div class="cancel" ng-click="modal.close()">{{modal.btnText.cancel}}</div>
+        <div class="submit" ng-click="modal.submitFunc()">{{modal.btnText.submit}}</div>
+    </div>
+</div>
+
