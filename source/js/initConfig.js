@@ -868,6 +868,28 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 clearInterval($scope.pool.loop.detail);
                 $scope.closeAjax($scope.pool.ajax.fullDetail);
                 $scope.closeAjax($scope.pool.ajax.detail);
+            },
+            "parseErrorText":function () {
+                var str = "";
+                switch ($scope.detail.torrentData.error){
+                    case 0:
+                        str = "无错误";
+                        break;
+                    case 1:
+                        str = "Tracker服务器告警";
+                        break;
+                    case 2:
+                        str = "Tracker服务器错误";
+                        break;
+                    case 3:
+                        str = "本地错误";
+                        break;
+                    default:
+                        str = $scope.detail.torrentData.errorString;
+                        break;
+                }
+
+                return str;
             }
         };
 
@@ -1080,6 +1102,9 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                     $scope.modal.status = false;
                     $scope.modal.tmp = $scope.tmpUrl.modal;
                 },550);
+            },
+            "selectTagContent":function ($index) {
+                return $scope.tag.index === $index;
             }
         };
 
@@ -1092,19 +1117,6 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 // contents.eq($index).addClass("selected").siblings().removeClass("selected");
             }
         };
-
-        // $timeout(function () {
-        //     $document.click(function () {
-        //         debugger;
-        //         if($scope.modal.status === true){
-        //             $scope.modal.close();
-        //         }
-        //
-        //         // if($scope.nav.status === true){
-        //         //     $scope.nav.close();
-        //         // }
-        //     });
-        // });
 
         $scope.nav = {
             status:false,
@@ -1121,7 +1133,8 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
             show:function () {
                 $scope.nav.status = true;
             },
-            close:function (index) {
+            close:function ($event,index) {
+                $event.stopPropagation();
                 $scope.nav.status = false;
                 if(index === 0){
                     clearInterval($scope.pool.loop.session);
@@ -1149,6 +1162,10 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                             $scope.submitSettings(param);
                         }
                     });
+                }
+
+                if(index === 3){
+                    $scope.detail.show();
                 }
             },
             parseMenuVisible:function ($index) {
@@ -1187,18 +1204,18 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
         $scope.init = function() {
 
             if($scope.getScreenWidth() >= 1024){
-                var doc = window.document;
-                var docEl = doc.documentElement;
-
-                var requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
-                var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
-
-                if(!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
-                    requestFullScreen.call(docEl);
-                }
-                else {
-                    cancelFullScreen.call(doc);
-                }
+                // var doc = window.document;
+                // var docEl = doc.documentElement;
+                //
+                // var requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+                // var cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+                //
+                // if(!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+                //     requestFullScreen.call(docEl);
+                // }
+                // else {
+                //     cancelFullScreen.call(doc);
+                // }
             }
 
             //load local data
@@ -1248,25 +1265,25 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
 
             $scope.allLoaded = false;
             //
-            // document.addEventListener('touchstart', function(event) {
-            //     // 判断默认行为是否可以被禁用
-            //     if (event.cancelable) {
-            //         // 判断默认行为是否已经被禁用
-            //         if (!event.defaultPrevented) {
-            //             event.preventDefault();
-            //         }
-            //     }
-            // }, false);
-            $scope.modal.show({
-                type:"waring",
-                title:"一分钟内请求Session失败次数过多",
-                content:"请检查您的网络是否顺畅，或点击确定通过刷新尝试解决！",
-                size:"small",
-                btnType : 2,
-                submitFunc : function () {
-                    $window.location.reload();
+            document.addEventListener('touchstart', function(event) {
+                // 判断默认行为是否可以被禁用
+                if (event.cancelable) {
+                    // 判断默认行为是否已经被禁用
+                    if (!event.defaultPrevented) {
+                        event.preventDefault();
+                    }
                 }
-            });
+            }, false);
+            // $scope.modal.show({
+            //     type:"waring",
+            //     title:"一分钟内请求Session失败次数过多",
+            //     content:"请检查您的网络是否顺畅，或点击确定通过刷新尝试解决！",
+            //     size:"small",
+            //     btnType : 2,
+            //     submitFunc : function () {
+            //         $window.location.reload();
+            //     }
+            // });
             // $scope.modal.show({
             //     type:"window",
             //     btnType : 2,

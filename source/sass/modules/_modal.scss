@@ -152,6 +152,23 @@
       &.alpha{
         top: 5%;
       }
+      >.content{
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        right: 20px;
+        bottom: 58px;
+        height: auto;
+        overflow: hidden !important;
+        >.tag-content{
+          position: absolute;
+          top: 38px;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          height: auto;
+        }
+      }
     }
   }
   >.btn-row{
@@ -211,6 +228,12 @@
         }
       }
     }
+    @media (max-width: 1024px){
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+    }
   }
 }
 .tags{
@@ -238,6 +261,7 @@
   height: 305px;
   overflow: auto;
   display: none;
+  padding: 0 20px;
   &.selected{
     display: block;
   }
@@ -246,11 +270,9 @@
     font-size: $font-size-large;
     color: $gray-40;
     margin-bottom: 15px;
-    padding: 0 10px;
   }
   >div{
     margin-bottom: 15px;
-    padding: 0 10px;
     color: $gray-40;
     >div{
       margin-bottom: 15px;

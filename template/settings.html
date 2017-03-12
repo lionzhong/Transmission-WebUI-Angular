@@ -3,9 +3,8 @@
     <div class="content">
         <ul class="tags" id="tags">
             <li ng-repeat="item in tag.name track by $index" ng-class="{'selected':$index ===tag.index}" ng-click="tag.toggle($index)">{{item}}</li>
-            <li>{{tag.index}}</li>
         </ul>
-        <section class="tag-content" ng-class="{'selected':tag.index === 0}">
+        <section class="tag-content" ng-class="{'selected':modal.selectTagContent(0)}">
             <h3>下载</h3>
             <div>
                 <div>
@@ -38,7 +37,7 @@
                 </div>
             </div>
         </section>
-        <section class="tag-content" ng-class="{'selected':tag.index === 1}">
+        <section class="tag-content" ng-class="{'selected':modal.selectTagContent(1)}">
             <h3>限速</h3>
             <div>
                 <div>
@@ -68,26 +67,26 @@
                     <label for="alt-speed-time-enabled">计划时段:</label>
                 </div>
                 <div>
-                    <label for="alt-speed-time-begin">开始时间{{dataStorage.global['alt-speed-time-begin']}}</label>
+                    <label for="alt-speed-time-begin">开始时间</label>
                     <select id="alt-speed-time-begin" class="select" ng-model="dataStorage.global['alt-speed-time-begin']">
                         <option ng-repeat="item in dataStorage['speed-limit-times'] track by $index" ng-value="item.value">{{item.key}}</option>
                     </select>
                 </div>
                 <div>
-                    <label for="alt-speed-time-end">结束时间{{dataStorage.global['alt-speed-time-end']}}</label>
+                    <label for="alt-speed-time-end">结束时间</label>
                     <select id="alt-speed-time-end" class="select" ng-model="dataStorage.global['alt-speed-time-end']">
                         <option ng-repeat="item in dataStorage['speed-limit-times'] track by $index" ng-value="item.value">{{item.key}}</option>
                     </select>
                 </div>
                 <div>
-                    <label for="alt-speed-time-day">在下列周期开始计划{{dataStorage.global['alt-speed-time-day']}}</label>
+                    <label for="alt-speed-time-day">在下列周期开始计划</label>
                     <select id="alt-speed-time-day" class="select" ng-model="dataStorage.global['alt-speed-time-day']">
                         <option ng-repeat="item in dataStorage['speed-limit-day'] track by $index" ng-value="item.value">{{item.key}}</option>
                     </select>
                 </div>
             </div>
         </section>
-        <section class="tag-content" ng-class="{'selected':tag.index === 2}">
+        <section class="tag-content" ng-class="{'selected':modal.selectTagContent(2)}">
             <h3>连接数</h3>
             <div>
                 <div>
@@ -104,7 +103,7 @@
             <h3>选项</h3>
             <div>
                 <div>
-                    <label for="encryption">加密{{dataStorage.global['encryption']}}</label>
+                    <label for="encryption">加密</label>
                     <select id="encryption" class="select" ng-model="dataStorage.global['encryption']">
                         <option ng-repeat="item in dataStorage['encryption'] track by $index" ng-value="item.value">{{item.key}}</option>
                     </select>
@@ -137,7 +136,7 @@
                 </div>
             </div>
         </section>
-        <section class="tag-content" ng-class="{'selected':tag.index === 3}">
+        <section class="tag-content" ng-class="{'selected':modal.selectTagContent(3)}">
             <h3>监听端口</h3>
             <div>
                 <div>

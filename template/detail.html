@@ -41,11 +41,7 @@
             <tr>
                 <th>错误</th>
                 <td>
-                    <span ng-if="detail.torrentData.error === 0">无错误</span>
-                    <span ng-if="detail.torrentData.error === 1">Tracker服务器告警：</span>
-                    <span ng-if="detail.torrentData.error === 2">Tracker服务器错误：</span>
-                    <span ng-if="detail.torrentData.error === 3">本地错误：</span>
-                    <span ng-if="detail.torrentData.error !== 0">{{detail.torrentData.errorString}}</span>
+                    <span>{{detail.parseErrorText()}}</span>
                 </td>
             </tr>
             </tbody>

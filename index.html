@@ -61,14 +61,14 @@
         </p>
     </div>
     <ul>
-        <li ng-repeat="item in nav.menudata.name track by $index" ng-if="getScreenWidth() <=  1024 ? item !== '查看传输明细':true" ng-click="nav.close($index);$event.stopPropagation();">
+        <li ng-repeat="item in nav.menudata.name track by $index" ng-if="getScreenWidth() <=  1024 ? item !== '查看传输明细':true" ng-click="nav.close($event,$index)">
             <span ng-class="nav.menudata.className[$index]"></span>
             <i>{{item}}</i>
         </li>
     </ul>
 </nav>
 <ul id="torrent-list" class="torrent-list">
-    <li ng-repeat="item in dataStorage.torrent track by $index" ng-class="parsTorrentClassName(item.status,$index)" ng-click="selectTorrent($index)">
+    <li ng-repeat="item in dataStorage.torrent track by $index" ng-class="parsTorrentClassName(item.status,$index)" ng-click="selectTorrent($index)" ng-dblclick="getScreenWidth() > 1024 ?detail.show():false;">
         <div class="name">{{item.name}}</div>
         <div class="status" ng-bind-html="parseText.Status($index)"></div>
         <div class="progess-bar">
