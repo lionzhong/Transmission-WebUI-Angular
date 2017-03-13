@@ -271,18 +271,19 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
         return service;
     }]);
 
-    $app.controller("mainController", ["$scope", "$http", "$q", "$sce", "$timeout", "$window", "$document", "ajaxService", function($scope, $http, $q, $sce, $timeout, $window, $document, ajaxService) {
+    $app.controller("mainController", ["$scope", "$http", "$q", "$sce", "$timeout", "$window", "$document", "$compile", "ajaxService", function($scope, $http, $q, $sce, $timeout, $window, $document, $compile, ajaxService) {
 
         var baseTmpUrl = "template/";
+
         $scope.tmpUrl = {
             detail: baseTmpUrl + "detail.html",
             blankDetail: baseTmpUrl + "blankDetail.html",
-            tips: baseTmpUrl + "modal.html",
-            settings: baseTmpUrl + "settings.html",
-            modal:baseTmpUrl + "modal.html",
-            about:baseTmpUrl + "about.html",
-            statics:baseTmpUrl + "statics.html",
-            addFiles:baseTmpUrl + "addFiles.html"
+            tips:  "modal_t",
+            settings:  "settings",
+            modal: "modal_t",
+            about: "about",
+            statics: "statics",
+            addFiles: "addFiles"
         };
 
         //loop pool
@@ -1027,9 +1028,9 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                     var filename = angular.element("#addTorrentUrl")[0].value;
                     if(filename !== "" && filename !== undefined && filename !== null){
                         var params = {
-                            'paused': $scope.dataStorage.addTransform.paused,
-                            'download-dir': $scope.dataStorage.addTransform['download-dir'],
-                            'filename': filename
+                            "paused": $scope.dataStorage.addTransform.paused,
+                            "download-dir": $scope.dataStorage.addTransform["download-dir"],
+                            "filename": filename
                         };
 
                         ajaxService.addTransform($scope.dataStorage.session,params).then(function () {
@@ -1039,7 +1040,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                             $scope.modal.show({
                                 type:"waring",
                                 title:"任务添加失败",
-                                content:value.name + reason.data.result,
+                                content:filename,
                                 size:"small",
                                 btnType : 1
                             });
@@ -1059,9 +1060,9 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                                 if (index > -1) {
                                     var metainfo = contents.substring (index + key.length);
                                     var params = {
-                                        'paused': $scope.dataStorage.addTransform.paused,
-                                        'download-dir': $scope.dataStorage.addTransform['download-dir'],
-                                        'metainfo': metainfo
+                                        "paused": $scope.dataStorage.addTransform.paused,
+                                        "download-dir": $scope.dataStorage.addTransform["download-dir"],
+                                        "metainfo": metainfo
                                     };
 
                                     arr[$index] = ajaxService.addTransform($scope.dataStorage.session,params).then(function () {
@@ -1208,6 +1209,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
             "title":"添加传输任务失败",
             "content":"请检查你的网络，或者尝试重新添加一次！",
             "btnType":2,//0 只有确定按钮，1 只有取消按钮，2 两个都有
+            "tempatesUrl":"template/modals.html",
             "tmp":"",
             "btnText":{
                 "submit":"确定",
@@ -1216,7 +1218,6 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
             "submitFunc":function () {
                 $scope.modal.close();
             },
-            "tmpLoaded":false,
             "show":function (op) {
                 if(op !== undefined && op.$event!==null && op.$event!==undefined){
                     op.$event.stopPropagation();
@@ -1237,6 +1238,9 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 }else{
                     $scope.modal.tmp = $scope.tmpUrl.modal;
                 }
+
+                var html = $("#"+ $scope.modal.tmp).html();
+                $("#modal").html($compile(html)($scope));
 
                 var className = "alpha";
 
@@ -1266,7 +1270,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                     $scope.reload.session();
                 }
 
-                $timeout(function () {
+                setTimeout(function () {
                     $scope.modal.status = false;
                     $scope.modal.tmp = "";
                 },240);
@@ -1364,7 +1368,8 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                         break;
                     case 4:
                         $scope.modal.show({
-                            type:"tip",
+                            type:"statics",
+                            size:"big",
                             tmp:$scope.tmpUrl.statics,
                             btnType : 1
                         });
@@ -1372,6 +1377,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                     case 5:
                         $scope.modal.show({
                             type:"tip",
+                            size:"big",
                             tmp:$scope.tmpUrl.about,
                             btnType : 1
                         });
@@ -1474,8 +1480,8 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
             });
 
             $scope.allLoaded = false;
-            //
-            document.addEventListener('touchstart', function(event) {
+
+            document.addEventListener("touchstart", function(event) {
                 // 判断默认行为是否可以被禁用
                 if (event.cancelable) {
                     // 判断默认行为是否已经被禁用
@@ -1484,24 +1490,6 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                     }
                 }
             }, false);
-
-            // $scope.modal.show({
-            //     type:"waring",
-            //     title:"一分钟内请求Session失败次数过多",
-            //     content:"请检查您的网络是否顺畅，或点击确定通过刷新尝试解决！",
-            //     size:"big",
-            //     btnType : 2,
-            //     submitFunc : function () {
-            //         $window.location.reload();
-            //     }
-            // });
-            // $scope.modal.show({
-            //     type:"window",
-            //     btnType : 2,
-            //     submitFunc : function () {
-            //         // $window.location.reload();
-            //     }
-            // });
         };
 
         $scope.init();
@@ -1509,10 +1497,10 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
     }]);
 
     //inlclude 直接用被嵌套的HTML替换include所在的标签
-    $app.directive('includeReplace', function() {
+    $app.directive("includeReplace", function() {
         return {
-            require: 'ngInclude',
-            restrict: 'A',
+            require: "ngInclude",
+            restrict: "A",
             /* optional */
             link: function(scope, el, attrs) {
                 el.replaceWith(el.children());

@@ -96,7 +96,9 @@
         <section ng-include src="tmpUrl.detail" ng-if="dataStorage.selectedIndex !== ''" include-replace></section>
     </div>
 </section>
-<div ng-include="modal.tmp" onload="model.tmpLoaded = true"></div>
+<div id="modal-bg" class="modal-bg" ng-class="{'modal-show':modal.status}" ng-click="modal.close()"></div>
+<div id="modal" class="modal" ng-class="{'modal-show':modal.status,'statics':modal.type === 'statics','tip':modal.type === 'tip','waring':modal.type === 'waring','add':modal.type === 'add','size-big':modal.size === 'big','size-small':modal.size === 'small','size-window':modal.size === 'window'}" ng-click="$event.stopPropagation();"></div>
 <script src="libs/requirejs/require.min.js" data-main="load.js"></script>
+<div include-replace ng-include="modal.tempatesUrl"></div>
 </body>
 </html>
