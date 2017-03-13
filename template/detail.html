@@ -106,7 +106,7 @@
 </div>
 <div class="deail-contents" ng-show="detail.selectedTabIndex === 2">
     <ul class="tracker-list">
-        <li ng-repeat="item in dataStorage.detail.trackerStats track by item.tier">
+        <li ng-repeat="item in dataStorage.detail.trackerStats track by $index">
             <h3>
                 {{item.announce}}
                 <i>等级{{item.tier}}</i>

@@ -277,7 +277,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
 
         $scope.tmpUrl = {
             detail: baseTmpUrl + "detail.html",
-            blankDetail: baseTmpUrl + "blankDetail.html",
+            blankDetail: baseTmpUrl + "blankdetail.html",
             tips:  "modal_t",
             settings:  "settings",
             modal: "modal_t",
