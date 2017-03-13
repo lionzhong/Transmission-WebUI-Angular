@@ -1013,9 +1013,10 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
             return result;
         };
 
-        $scope.addTransform = function () {
+        $scope.addTransform = function ($event) {
             $scope.dataStorage.addTransform.paused = true;
             $scope.dataStorage.addTransform['download-dir'] = $scope.dataStorage.global['download-dir'];
+            $event.stopPropagation();
             $scope.modal.show({
                 type:"add",
                 size:"big",
@@ -1207,7 +1208,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
             "title":"添加传输任务失败",
             "content":"请检查你的网络，或者尝试重新添加一次！",
             "btnType":2,//0 只有确定按钮，1 只有取消按钮，2 两个都有
-            "tmp":$scope.tmpUrl.modal,
+            "tmp":"",
             "btnText":{
                 "submit":"确定",
                 "cancel":"关闭"
@@ -1215,6 +1216,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
             "submitFunc":function () {
                 $scope.modal.close();
             },
+            "tmpLoaded":false,
             "show":function (op) {
                 if(op !== undefined && op.$event!==null && op.$event!==undefined){
                     op.$event.stopPropagation();
@@ -1232,13 +1234,15 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
 
                 if(op.tmp !== undefined){
                     $scope.modal.tmp = op.tmp;
+                }else{
+                    $scope.modal.tmp = $scope.tmpUrl.modal;
                 }
 
                 var className = "alpha";
 
                 if(op !== undefined){
                     _.each(op,function (value,key) {
-                        if(key !== "show" && key !== "close"){
+                        if(key !== "show" && key !== "close" && key !== "status"){
                             $scope.modal[key] = value;
                         }
                     });
@@ -1264,8 +1268,8 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
 
                 $timeout(function () {
                     $scope.modal.status = false;
-                    $scope.modal.tmp = $scope.tmpUrl.modal;
-                },550);
+                    $scope.modal.tmp = "";
+                },240);
             },
             "selectTagContent":function ($index) {
                 return $scope.tag.index === $index;
@@ -1480,6 +1484,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                     }
                 }
             }, false);
+
             // $scope.modal.show({
             //     type:"waring",
             //     title:"一分钟内请求Session失败次数过多",

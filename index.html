@@ -32,7 +32,7 @@
             <span class="logo-img"></span>
             <i>Transmission</i>
         </span>
-        <span class="icon-add" ng-click="addTransform()">
+        <span class="icon-add" ng-click="addTransform($event)">
             <i>添加任务</i>
         </span>
         <span class="icon-delete" ng-class="{'disabled':dataStorage.selectedIndex === ''}" ng-click="removeFromList([dataStorage.torrent[dataStorage.selectedIndex].id])">
@@ -96,7 +96,7 @@
         <section ng-include src="tmpUrl.detail" ng-if="dataStorage.selectedIndex !== ''" include-replace></section>
     </div>
 </section>
-<div ng-include="modal.tmp"></div>
+<div ng-include="modal.tmp" onload="model.tmpLoaded = true"></div>
 <script src="libs/requirejs/require.min.js" data-main="load.js"></script>
 </body>
 </html>
