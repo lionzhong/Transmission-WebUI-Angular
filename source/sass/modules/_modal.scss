@@ -280,6 +280,12 @@
       }
     }
   }
+  &.size-about{
+    margin-bottom: 0;
+  }
+  &.about{
+    line-height: 22px;
+  }
   &.statics{
     >.content{
       position: absolute;

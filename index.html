@@ -32,22 +32,22 @@
             <span class="logo-img"></span>
             <i>Transmission</i>
         </span>
-        <span class="icon-add" ng-click="addTransform($event)">
+        <span class="icon-add" ng-class="{'disabled':allLoaded === false}" ng-click="addTransform($event)">
             <i>添加任务</i>
         </span>
-        <span class="icon-delete" ng-class="{'disabled':dataStorage.selectedIndex === ''}" ng-click="removeFromList([dataStorage.torrent[dataStorage.selectedIndex].id])">
+        <span class="icon-delete" ng-class="{'disabled':dataStorage.selectedIndex === '' || allLoaded === false}" ng-click="removeFromList([dataStorage.torrent[dataStorage.selectedIndex].id])">
             <i>从列表中删除</i>
         </span>
-        <span class="icon-start-light" ng-class="{'disabled':dataStorage.selectedIndex === ''}" ng-click="startTransform([dataStorage.torrent[dataStorage.selectedIndex].id])">
+        <span class="icon-start-light" ng-class="{'disabled':dataStorage.selectedIndex === '' || allLoaded === false}" ng-click="startTransform([dataStorage.torrent[dataStorage.selectedIndex].id])">
             <i>开始</i>
         </span>
-            <span class="icon-pause-light" ng-class="{'disabled':dataStorage.selectedIndex === ''}" ng-click="pauseTransform([dataStorage.torrent[dataStorage.selectedIndex].id])">
+            <span class="icon-pause-light" ng-class="{'disabled':dataStorage.selectedIndex === '' || allLoaded === false}" ng-click="pauseTransform([dataStorage.torrent[dataStorage.selectedIndex].id])">
             <i>暂停</i>
         </span>
-        <span class="icon-start-all-light" ng-class="{'disabled':dataStorage.torrent.length === 0}" ng-click="startTransform(dataStorage.ids)">
+        <span class="icon-start-all-light" ng-class="{'disabled':dataStorage.torrent.length === 0 || allLoaded === false}" ng-click="startTransform(dataStorage.ids)">
             <i>开始所有任务</i>
         </span>
-        <span class="icon-pause-all-light" ng-class="{'disabled':dataStorage.torrent.length === 0}" ng-click="pauseTransform(dataStorage.ids)">
+        <span class="icon-pause-all-light" ng-class="{'disabled':dataStorage.torrent.length === 0 || allLoaded === false}" ng-click="pauseTransform(dataStorage.ids)">
             <i>暂停所有任务</i>
         </span>
     </div>
@@ -97,7 +97,7 @@
     </div>
 </section>
 <div id="modal-bg" class="modal-bg" ng-class="{'modal-show':modal.status}" ng-click="modal.close()"></div>
-<div id="modal" class="modal" ng-class="{'modal-show':modal.status,'statics':modal.type === 'statics','tip':modal.type === 'tip','waring':modal.type === 'waring','add':modal.type === 'add','size-big':modal.size === 'big','size-small':modal.size === 'small','size-window':modal.size === 'window'}" ng-click="$event.stopPropagation();"></div>
+<div id="modal" class="modal" ng-class="{'modal-show':modal.status,'statics':modal.type === 'statics','tip':modal.type === 'tip','waring':modal.type === 'waring','add':modal.type === 'add','size-about':modal.type === 'about','size-big':modal.size === 'big','size-small':modal.size === 'small','size-window':modal.size === 'window'}" ng-click="$event.stopPropagation();"></div>
 <script src="libs/requirejs/require.min.js" data-main="load.js"></script>
 <div include-replace ng-include="modal.tempatesUrl"></div>
 </body>

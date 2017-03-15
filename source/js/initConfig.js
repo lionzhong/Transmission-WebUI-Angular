@@ -1001,12 +1001,18 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
             }
         };
 
+        $scope.isAllLoaded = function () {
+            return $scope.allLoaded;
+        };
+
+        //验证传入的ID数组是是否为空
         var validationIDS = function(ids) {
             var result = true;
             if ($scope.dataStorage.torrent.length === 0 || ids === undefined || ids.length === 0 || (ids.length === 1 && ids[0] === undefined)) {
                 result = false;
             }
 
+            //如果是移动设备则直接设置为关闭侧边栏
             if ($(window).width() <= 1024) {
                 $scope.consolePanel.status = false;
             }
@@ -1015,6 +1021,11 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
         };
 
         $scope.addTransform = function ($event) {
+
+            if($scope.isAllLoaded() === false) {
+                return false;
+            }
+
             $scope.dataStorage.addTransform.paused = true;
             $scope.dataStorage.addTransform['download-dir'] = $scope.dataStorage.global['download-dir'];
             $event.stopPropagation();
@@ -1376,7 +1387,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                         break;
                     case 5:
                         $scope.modal.show({
-                            type:"tip",
+                            type:"about",
                             size:"big",
                             tmp:$scope.tmpUrl.about,
                             btnType : 1
