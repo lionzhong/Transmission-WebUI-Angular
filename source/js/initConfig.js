@@ -1386,12 +1386,12 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
             "name":["种子","速度","用户","网络"],
             "index":0,
             "swipLeft":function () {
-                if($scope.tag.index < 3 && $scope.getScreenWidth() <= 1024){
+                if($scope.tag.index < 3){
                     $scope.tag.index += 1;
                 }
             },
             "swipRight":function () {
-                if($scope.tag.index > 0 && $scope.getScreenWidth() <= 1024){
+                if($scope.tag.index > 0){
                     $scope.tag.index -= 1;
                 }
             },
