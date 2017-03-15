@@ -32,23 +32,6 @@
         display: none;
       }
     }
-    >h2{
-      @include yahei;
-      font-size: ceil($font-size-large*1.58);
-      height: ceil($font-size-large*1.78);
-      color: $gray-100;
-      margin-bottom: 20px;
-      word-break: keep-all;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      min-width: 0;
-      padding: 0 50px;
-      @media (max-width: 1024px) {
-        font-size: ceil($font-size-large*1.2);
-        height: ceil($font-size-large*1.35);
-      }
-    }
     >ul{
       text-align: center;
       margin: 20px auto;
@@ -79,6 +62,25 @@
             color: $gray-100;
             background-color: $prime-blue;
           }
+        }
+      }
+    }
+    >.torrent-detail-content{
+      >h2{
+        @include yahei;
+        font-size: ceil($font-size-large*1.58);
+        height: ceil($font-size-large*1.78);
+        color: $gray-100;
+        margin-bottom: 20px;
+        word-break: keep-all;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 0;
+        padding: 0 50px;
+        @media (max-width: 1024px) {
+          font-size: ceil($font-size-large*1.2);
+          height: ceil($font-size-large*1.35);
         }
       }
     }

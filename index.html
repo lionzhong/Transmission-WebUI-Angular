@@ -92,13 +92,13 @@
                 <span ng-if="$index === 3" class="icon-checklist"></span>
             </li>
         </ul>
-        <section ng-include src="tmpUrl.blankDetail" ng-if="dataStorage.selectedIndex === ''" include-replace></section>
-        <section ng-include src="tmpUrl.detail" ng-if="dataStorage.selectedIndex !== ''" include-replace></section>
+        <section class="torrent-detail-content" id="torrent-detail-content"></section>
     </div>
 </section>
 <div id="modal-bg" class="modal-bg" ng-class="{'modal-show':modal.status}" ng-click="modal.close()"></div>
-<div id="modal" class="modal" ng-class="{'modal-show':modal.status,'statics':modal.type === 'statics','tip':modal.type === 'tip','waring':modal.type === 'waring','add':modal.type === 'add','size-about':modal.type === 'about','size-big':modal.size === 'big','size-small':modal.size === 'small','size-window':modal.size === 'window'}" ng-click="$event.stopPropagation();"></div>
+<div id="modal" class="modal" ng-class="{'modal-show':modal.status,'statics':modal.type === 'statics','tip':modal.type === 'tip','waring':modal.type === 'waring','add':modal.type === 'add','about':modal.type === 'about','size-big':modal.size === 'big','size-small':modal.size === 'small','size-window':modal.size === 'size-window'}" ng-click="$event.stopPropagation();"></div>
 <script src="libs/requirejs/require.min.js" data-main="load.js"></script>
 <div include-replace ng-include="modal.tempatesUrl"></div>
+<div include-replace ng-include="tmpUrl.detail" onload="detailTemplateLoaded = true"></div>
 </body>
 </html>

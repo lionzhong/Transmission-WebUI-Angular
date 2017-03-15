@@ -1,5 +1,5 @@
 <script type="text/html" id="about">
-    <div class="content about">
+    <div class="content">
         <img src="dist/img/logo192.png" alt="{{'Transmission ' + dataStorage.global.version}}" title="{{'Transmission ' + dataStorage.global.version}}">
         <p>
             Transmission {{dataStorage.global.version}}
@@ -54,7 +54,7 @@
     </div>
 </script>
 <script type="text/html" id="settings">
-    <div class="content">
+    <div class="content" mn-touch swipe-left="tag.swipLeft();$event.stopPropagation();" swipe-right="tag.swipRight();$event.stopPropagation();" >
         <ul class="tags" id="tags">
             <li ng-repeat="item in tag.name track by $index" ng-class="{'selected':$index ===tag.index}" ng-click="tag.toggle($index)">{{item}}</li>
         </ul>

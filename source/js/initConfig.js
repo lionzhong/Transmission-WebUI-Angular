@@ -268,6 +268,25 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 url: "?type=saveSettings"
             });
         };
+
+        service.setPriority = function (sessionId,op) {
+            return ajax({
+                sessionId: sessionId,
+                param: {
+                    "method": "torrent-set",
+                    "arguments": (function(){
+                        var params = {
+                            "ids":op.idsArr
+                        };
+
+                        params[op.priorityType] = op.priorityIndexArr;
+
+                        return params;
+                    })()
+                },
+                url: "?type=torrent-set"
+            });
+        };
         return service;
     }]);
 
@@ -275,9 +294,9 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
 
         var baseTmpUrl = "template/";
 
+        $scope.detailTemplateLoaded = false;
         $scope.tmpUrl = {
             detail: baseTmpUrl + "detail.html",
-            blankDetail: baseTmpUrl + "blankdetail.html",
             tips:  "modal_t",
             settings:  "settings",
             modal: "modal_t",
@@ -583,6 +602,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 return false;
             }
             $scope.dataStorage.selectedIndex = index;
+            $scope.detail.compileTemplate();
             if ($scope.detail.status === true) {
                 $scope.detail.close();
                 $scope.detail.show();
@@ -879,13 +899,31 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
             "tabSelect": function(index) {
                 $scope.detail.selectedTabIndex = index;
             },
+            "allPriorityStatus":-2,
             "status": false,
             "torrentData": false,
             "selectedTabIndex": 0,
+            "noneBlankTemplate":false,
+            "compileTemplate":function () {
+                if($scope.detail.noneBlankTemplate === true){return;}
+
+                var html = "";
+
+                if(typeof $scope.dataStorage.selectedIndex === "string"){
+                    html = angular.element("#blankDetail").html();
+                }else if(typeof $scope.dataStorage.selectedIndex === "number"){
+                    html = angular.element("#detail").html();
+                    $scope.detail.noneBlankTemplate = true
+                }
+
+                angular.element("#torrent-detail-content").html($compile(html)($scope));
+            },
             "loopGetDetail":function () {
                 $scope.pool.ajax.fullDetail = ajaxService.getFullDetail($scope.dataStorage.session, [$scope.dataStorage.torrent[$scope.dataStorage.selectedIndex].id]);
                 $scope.pool.ajax.fullDetail.promise.then(function(response) {
+
                     $scope.dataStorage.detail = response.data.arguments.torrents[0];
+
                     $scope.pool.loop.detail = setInterval(function() {
                         $scope.pool.ajax.detail = ajaxService.getDetail($scope.dataStorage.session, [$scope.dataStorage.torrent[$scope.dataStorage.selectedIndex].id]);
                         $scope.pool.ajax.detail.promise.then(function($response) {
@@ -900,11 +938,23 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                                 content:"请检查您的网络是否顺畅，或点击确定通过刷新尝试解决！",
                                 btnType : 2,
                                 submitFunc : function () {
+                                    $scope.modal.close();
                                     $scope.detail.loopGetDetail();
                                 }
                             });
                         });
                     }, $scope.loopFragment.detail);
+
+                    if(_.every($scope.dataStorage.detail.fileStats, ["priority", 0]) === true){
+                        $scope.detail.allPriorityStatus = 0;
+                    }else if(_.every($scope.dataStorage.detail.fileStats, ["priority", -1]) === true){
+                        $scope.detail.allPriorityStatus = -1;
+                    }else if(_.every($scope.dataStorage.detail.fileStats, ["priority", 1]) === true){
+                        $scope.detail.allPriorityStatus = 1;
+                    }
+
+                    // var html = angular.element("#file-list-trigger").html();
+                    // angular.element("#file-list-trigger-container").html($compile(html)($scope));
                 }, function(reason) {
                     $scope.modal.show({
                         type:"waring",
@@ -913,6 +963,49 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                         btnType : 1
                     });
                 });
+            },
+            "changePriority":function (op) {
+                var params = {
+                    idsArr : [$scope.dataStorage.torrent[$scope.dataStorage.selectedIndex].id],
+                    priorityType:(function(){
+                        var str = "";
+                        switch (op.type){
+                            case -1:
+                                str = "priority-low";
+                                break;
+                            case 0:
+                                str = "priority-normal";
+                                break;
+                            case 1:
+                                str = "priority-high";
+                                break;
+                        }
+                        return str;
+                    })(),
+                    priorityIndexArr:(function () {
+                        var arr = [];
+                        if(op.index > -1){
+                            arr.push(op.index);
+                        }else{
+                            var l = $scope.dataStorage.detail.fileStats.length;
+                            for (var i =0;i<l;i++){
+                                arr.push(i);
+                            }
+                        }
+                        return arr;
+                    })()
+                };
+                ajaxService.setPriority($scope.dataStorage.session,params).then(function () {
+                    $scope.reload.detail();
+                },function (reason) {
+                    $scope.modal.show({
+                        type:"waring",
+                        title:"设置文件优先级失败",
+                        content:"test",
+                        size:"small",
+                        btnType : 1
+                    });
+                })
             },
             "show": function() {
                 $scope.detail.status = $scope.detail.status !== true;
@@ -1238,9 +1331,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                     return false;
                 }
 
-                if(op.type === "window"){
-                    $scope.modal.size = "window";
-                }else if(op.size === undefined){
+                if(op.size === undefined){
                     $scope.modal.size = "small";
                 }
 
@@ -1347,7 +1438,8 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                             });
                         });
                         $scope.modal.show({
-                            type:"window",
+                            type:"setting",
+                            size:"size-window",
                             tmp:$scope.tmpUrl.settings,
                             btnType : 2,
                             submitFunc : function () {
@@ -1429,7 +1521,12 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
         };
 
         $scope.init = function() {
-
+            var detailTemplateLoad = $scope.$watch("detailTemplateLoaded",function (newValue,oldValue) {
+                if(newValue === true && oldValue === false){
+                    $scope.detail.compileTemplate();
+                    detailTemplateLoad();
+                }
+            },true);
             // if($scope.getScreenWidth() >= 1024){
                 // var doc = window.document;
                 // var docEl = doc.documentElement;
