@@ -910,13 +910,13 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 var html = "";
 
                 if(typeof $scope.dataStorage.selectedIndex === "string"){
-                    html = angular.element("#blankDetail").html();
+                    html = $("#blankDetail").html();
                 }else if(typeof $scope.dataStorage.selectedIndex === "number"){
-                    html = angular.element("#detail").html();
+                    html = $("#detail").html();
                     $scope.detail.noneBlankTemplate = true
                 }
 
-                angular.element("#torrent-detail-content").html($compile(html)($scope));
+                $("#torrent-detail-content").html($compile(html)($scope));
             },
             "loopGetDetail":function () {
                 $scope.pool.ajax.fullDetail = ajaxService.getFullDetail($scope.dataStorage.session, [$scope.dataStorage.torrent[$scope.dataStorage.selectedIndex].id]);
@@ -953,8 +953,8 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                         $scope.detail.allPriorityStatus = 1;
                     }
 
-                    // var html = angular.element("#file-list-trigger").html();
-                    // angular.element("#file-list-trigger-container").html($compile(html)($scope));
+                    // var html = $(""#file-list-trigger").html();
+                    // $(""#file-list-trigger-container").html($compile(html)($scope));
                 }, function(reason) {
                     $scope.modal.show({
                         type:"waring",
@@ -1129,7 +1129,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 tmp:$scope.tmpUrl.addFiles,
                 submitFunc:function () {
                     $scope.modal.close();
-                    var filename = angular.element("#addTorrentUrl")[0].value;
+                    var filename = $("#addTorrentUrl")[0].value;
                     if(filename !== "" && filename !== undefined && filename !== null){
                         var params = {
                             "paused": $scope.dataStorage.addTransform.paused,
@@ -1151,7 +1151,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                         });
                     }else{
                         var arr = [];
-                        var files = angular.element("#addTorrentFiles")[0].files;
+                        var files = $("#addTorrentFiles")[0].files;
                         var err = [];
                         var promiseFlag = false;
                         var errFlag = false;

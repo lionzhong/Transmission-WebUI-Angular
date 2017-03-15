@@ -55,7 +55,7 @@
 <nav class="nav" ng-class="{'nav-menu':nav.status}">
     <div>
         <span class="icon-menu" ng-click="nav.toggle()"></span>
-        <div class="hide">
+        <div id="hide" class="hide">
             <span class="searchBox" ng-class="{'active':dataStorage.searchText.name !== ''}">
                 <label for="searchBox"><span class="icon-search"></span></label>
                 <input id="searchBox" type="text" ng-model="dataStorage.searchText.name">

@@ -1,7 +1,7 @@
 /**
  * Created by vincent on 2017/3/5.
  */
-define(["jquery", "lodash"], function ($, _) {
+define(function () {
     "use strict";
 
     //解析对象是否为空对象
@@ -16,54 +16,6 @@ define(["jquery", "lodash"], function ($, _) {
             }
         }
         return c;
-    };
-
-    //ng异步promise
-    var ngAjaxPromise = function (op) {
-        // op = {
-        //     type:"", get或者post
-        //     url:"", 请求地址
-        //     param:{}/"",请求的参数
-        //     err:"",报错时的提示文字
-        //     $http:{},ng $http对象
-        //     $q:{},ng $q对象
-        //     cancel:true 是否可以取消
-        // }
-        var dfd = op.$q.defer();
-
-        //设置异步对象
-        var ajax = {};
-        switch (op.type) {
-            case "post":
-                ajax = op.$http.post(op.url, op.param);
-                break;
-            case "get":
-                ajax = op.param.params ? op.$http.get(op.url, op.param) : op.$http.get(op.url + op.param);
-                break;
-            case "put":
-                ajax = op.$http.put(op.url, op.param);
-                break;
-            case "patch":
-                ajax = op.$http.patch(op.url, op.param);
-                break;
-            case "delete":
-                ajax = op.$http.delete(op.url, op.param);
-                break;
-        }
-
-        op.$q.when(ajax,function (response, status, headers, config) {
-            dfd.resolve(response);
-        },function (response, status) {
-            if (status !== 0) {
-                dfd.reject({
-                    errService:op.errService ? op.errService : "Service Error",
-                    err:op.err,
-                    response:response
-                });
-            }
-        });
-
-        return op.cancel?dfd:dfd.promise;
     };
 
     //解析数据，保留小数点2位并转换为数字类型
@@ -285,187 +237,11 @@ define(["jquery", "lodash"], function ($, _) {
         return parseFloat((parseZero(num)).toFixed(2));
     };
 
-    //当目标滚动窗口时，目标对象距离当前窗口顶部0像素时，固定此对象在窗口顶部（fixed）
-    function FixedBar(op) {
-        this.target = $("#" + op.id);
-        this.classname = "fixed";
-        this.scroll = function () {
-            var $this = this;
-            setTimeout(function () {
-                var objTop = $this.target.offset().top;
-                var objWidth = $this.target.width();
-                $(window).scroll(function () {
-                    if ($(this).scrollTop() >= objTop) {
-                        $this.target.addClass($this.classname);
-                        $this.target.css({"width": objWidth});
-                    } else {
-                        $this.target.removeClass($this.classname);
-                        $this.target.css({"width": "auto"});
-                    }
-                });
-            }, 300);
-        };
-        this.init = function () {
-            this.scroll();
-        };
-        this.init();
-    }
-
-    //多选框绑定组件
-    var checkboxGroup = function CheckboxGroup(op, scope) {
-        /*例子
-         checkboxGroup({
-         "source": $scope.checkBoxData,//数据源
-         "initBind": ["checkedBoxes",$scope.initData],//[ng绑定的选中变量,初始化选中的数据]
-         "getCheckedBind":["getChecked","checkReuslt"]//[ng绑定获取结果数据的方法名,ng绑定结果数据]
-         },$scope);
-         */
-
-        //初始化数据
-        this.sourceData = op.source;
-        this.initData = op.initBind ? op.initBind[1] : false;
-
-        //初始化各checkbox是否选中
-        this.initCheckboxGroup = function (op) {
-            //设置所有checkbox默认为都不选中
-            var arr = [];
-            var l = op.source.length;
-            for (var i = 0; i < l; i++) {
-                arr.push(false);
-            }
-
-            //如果存在初始化数据，则将iniData数据做匹配，将对应arr中的check位置改为true
-            if (op.initData) {
-                var initLength = op.initData.length;
-                for (var k = 0; k < initLength; k++) {
-                    var $this = op.initData[k];
-                    for (var j = 0; j < l; j++) {
-                        if ($this === op.source[j]) {
-                            arr[k] = true;
-                        }
-                    }
-                }
-            }
-            scope.tests = "3";
-            return arr;
-        };
-
-        //获取选中的checkbox数据
-        this.getChecked = function (op) {
-            var l = this.sourceData.length;
-            var arr = [];
-            for (var i = 0; i < l; i++) {
-                if (op.result[i] === true) {
-                    arr.push(this.sourceData[i]);
-                }
-            }
-            return arr;
-        };
-
-        //初始化多选框绑定组件
-        this.init = function () {
-            var $this = this;
-            var initOp = {"source": $this.sourceData};
-
-            if ($this.initData) {
-                initOp.initData = $this.initData;
-            }
-
-            var scopeCheckedVar = op.initBind[0];
-            var scopeGetCheckedFunc = op.getCheckedBind[0];
-            var scopeResultVar = op.getCheckedBind[1];
-
-            scope[scopeCheckedVar] = $this.initCheckboxGroup(initOp);
-            scope[scopeGetCheckedFunc] = function () {
-                scope[scopeResultVar] = $this.getChecked({"result": scope[scopeCheckedVar]});
-                console.log(scope[scopeResultVar]);
-            };
-        };
-        this.init();
-    };
-
-    //自适应高宽
-    var autosize = function (op) {
-        function parseSize(name, num) {
-            $(window).resize(function () {
-                if (($(window)[name]() - dif[name]) > num) {
-                    target[name]($(window)[name]() - dif[name]);
-                }
-            });
-            $(document).change(function () {
-                if (($(window)[name]() - dif[name]) > num) {
-                    target[name]($(window)[name]() - dif[name]);
-                }
-            });
-        }
-
-        if (op) {
-            var target = op.target;
-            var H = $(window).height();
-            var W = $(window).width();
-            var targetH = target.height();
-            var targetW = target.width();
-            var dif = op.dif ? op.dif : {"height": 0, "width": 0};
-
-            if (op.autoset) {
-                if (op.autoset.width === true) {
-                    if (targetW < W) {
-                        target.width(W - dif);
-                    }
-                }
-
-                if (op.autoset.widthAuto === true) {
-                    parseSize("width", targetW);
-                }
-
-                if (op.autoset.height === true) {
-                    if (targetH < H && (H - dif.height) > targetH) {
-                        target.height(H - dif.height);
-                    }
-                }
-
-                if (op.autoset.heightAuto === true) {
-                    parseSize("height", targetH);
-                }
-            }
-        }
-    };
-
-    //批量/单个echart图表初始化。
-    var initEchart = function (op, echart) {
-        var charts = [];
-        var l = op.length;
-
-        if (op && l > 0) {
-            for (var i = 0; i < l; i++) {
-                charts.push(echart.init(document.getElementById(op[i].id)));
-                charts[i].setOption(op[i].option);
-            }
-
-            $(window).resize(function () {
-                for (var k = 0; k < l; k++) {
-                    charts[k].resize();
-                }
-            });
-        }
-
-        if (!l && op.id && op.option) {
-            charts = echart.init(document.getElementById(op.id));
-            charts.setOption(op.option);
-            $(window).resize(function () {
-                charts.resize();
-            });
-        }
-
-        return charts;
-    };
-
     //图表组件默认颜色组
     var colorGroup = ["#F7DC6F", "#A9CCE3", "#D7BDE2", "#AF7AC5", "#26C6DA", "#7986CB", "#A3E4D7", "#52BE80", "#E59866", "#B2BABB", "#F1948A", "#3498DB", "#D0D3D4", "#E74C3C", "#9FA8DA", "#A1887F", "#C5E1A5", "#FFC107"];
 
     return {
         "isEmptyObj": isEmptyObj,
-        "ngAjaxPromise": ngAjaxPromise,
         "parseZero": parseZero,
         "flowConvert": flowConvert,
         "bytesConvert": bytesConvert,
@@ -474,11 +250,7 @@ define(["jquery", "lodash"], function ($, _) {
         "parseTime": parseTime,
         "parseFullDate": parseFullDate,
         "parseFloat2": parseFloat2,
-        "FixedBar": FixedBar,
-        "checkboxGroup": checkboxGroup,
-        "autoSize": autosize,
-        "initEchart": initEchart,
-        "colorGroup": colorGroup,
-        "secondsToTime":secondsToTime
+        "secondsToTime":secondsToTime,
+        "colorGroup":colorGroup
     };
 });
