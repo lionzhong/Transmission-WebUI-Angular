@@ -1119,7 +1119,6 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 return false;
             }
 
-            $scope.dataStorage.addTransform.paused = true;
             $scope.dataStorage.addTransform['download-dir'] = $scope.dataStorage.global['download-dir'];
             $event.stopPropagation();
             $scope.modal.show({
@@ -1132,7 +1131,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                     var filename = $("#addTorrentUrl")[0].value;
                     if(filename !== "" && filename !== undefined && filename !== null){
                         var params = {
-                            "paused": $scope.dataStorage.addTransform.paused,
+                            "paused": $scope.dataStorage.addTransform.paused !== true,
                             "download-dir": $scope.dataStorage.addTransform["download-dir"],
                             "filename": filename
                         };
@@ -1164,7 +1163,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                                 if (index > -1) {
                                     var metainfo = contents.substring (index + key.length);
                                     var params = {
-                                        "paused": $scope.dataStorage.addTransform.paused,
+                                        "paused": $scope.dataStorage.addTransform.paused !== true,
                                         "download-dir": $scope.dataStorage.addTransform["download-dir"],
                                         "metainfo": metainfo
                                     };
