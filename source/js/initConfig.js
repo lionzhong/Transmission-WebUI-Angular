@@ -293,7 +293,6 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
     $app.controller("mainController", ["$scope", "$http", "$q", "$sce", "$timeout", "$window", "$document", "$compile", "ajaxService", function($scope, $http, $q, $sce, $timeout, $window, $document, $compile, ajaxService) {
 
         var baseTmpUrl = "template/";
-
         $scope.detailTemplateLoaded = false;
         $scope.tmpUrl = {
             detail: baseTmpUrl + "detail.html",
@@ -1446,8 +1445,8 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
 
                 switch (index){
                     case 0:
+                        $scope.dataStorage.settings = angular.copy($scope.dataStorage.global);
 
-                        $scope.dataStorage.settings = _.clone($scope.dataStorage.global);
                         ajaxService.portTest($scope.dataStorage.session).then(function (response) {
                             $scope.dataStorage["port-test"] = response.data["arguments"]["port-is-open"];
                         },function (reason) {
@@ -1469,7 +1468,9 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                             submitFunc : function () {
                                 var param = {};
                                 _.each($scope.dataStorage.settings,function (value,key) {
-                                    if(value !== $scope.dataStorage.global[key]){
+                                    var type = typeof ($scope.dataStorage.global[key]);
+                                    value = type === "number"?parseFloat(value):value;
+                                    if(value !== $scope.dataStorage.global[key] && key !== "units"){
                                         param[key] = value;
                                     }
                                 });

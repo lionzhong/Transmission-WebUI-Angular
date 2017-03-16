@@ -123,21 +123,15 @@
                     </div>
                     <div>
                         <label for="alt-speed-time-begin">开始时间</label>
-                        <select id="alt-speed-time-begin" class="select" name="alt-speed-time-begin" ng-disabled="dataStorage.settings['alt-speed-time-enabled'] === false" ng-model="dataStorage.settings['alt-speed-time-begin']">
-                            <option ng-repeat="item in dataStorage['speed-limit-times'] track by $index" ng-value="item.value">{{item.key}}</option>
-                        </select>
+                        <select id="alt-speed-time-begin" class="select" name="alt-speed-time-begin" ng-disabled="dataStorage.settings['alt-speed-time-enabled'] === false" ng-options="item.value as item.key for item in dataStorage['speed-limit-times']" ng-model="dataStorage.settings['alt-speed-time-begin']"></select>
                     </div>
                     <div>
                         <label for="alt-speed-time-end">结束时间</label>
-                        <select id="alt-speed-time-end" name="alt-speed-time-end" class="select" ng-disabled="dataStorage.settings['alt-speed-time-enabled'] === false" ng-model="dataStorage.settings['alt-speed-time-end']">
-                            <option ng-repeat="item in dataStorage['speed-limit-times'] track by $index" ng-value="item.value">{{item.key}}</option>
-                        </select>
+                        <select id="alt-speed-time-end" name="alt-speed-time-end" class="select" ng-disabled="dataStorage.settings['alt-speed-time-enabled'] === false" ng-options="item.value as item.key for item in dataStorage['speed-limit-times']" ng-model="dataStorage.settings['alt-speed-time-end']"></select>
                     </div>
                     <div>
                         <label for="alt-speed-time-day">在下列周期开始计划</label>
-                        <select id="alt-speed-time-day" name="alt-speed-time-day" class="select" ng-disabled="dataStorage.settings['alt-speed-time-enabled'] === false" ng-model="dataStorage.settings['alt-speed-time-day']">
-                            <option ng-repeat="item in dataStorage['speed-limit-day'] track by $index" ng-value="item.value">{{item.key}}</option>
-                        </select>
+                        <select id="alt-speed-time-day" name="alt-speed-time-day" class="select" ng-disabled="dataStorage.settings['alt-speed-time-enabled'] === false" ng-options="item.value as item.key for item in dataStorage['speed-limit-day']" ng-model="dataStorage.settings['alt-speed-time-day']"></select>
                     </div>
                 </div>
             </section>
@@ -159,9 +153,7 @@
                 <div>
                     <div>
                         <label for="encryption">加密</label>
-                        <select id="encryption" name="encryption" class="select" ng-model="dataStorage.settings['encryption']">
-                            <option ng-repeat="item in dataStorage['encryption'] track by $index" ng-value="item.value">{{item.key}}</option>
-                        </select>
+                        <select id="encryption" name="encryption" class="select" ng-options="item.value as item.key for item in dataStorage['encryption']" ng-model="dataStorage.settings['encryption']"></select>
                     </div>
                     <div>
                         <div>
