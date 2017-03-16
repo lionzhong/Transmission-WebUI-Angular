@@ -222,7 +222,6 @@
         float: left;
         width: 50%;
         &.submit{
-          margin-left: -1px;
           z-index: 1;
           &:hover{
             z-index: 3;
@@ -231,7 +230,6 @@
         }
         &.cancel{
           z-index: 2;
-          @include border("border-right");
           &:hover{
             z-index: 3;
             border-color: transparent;

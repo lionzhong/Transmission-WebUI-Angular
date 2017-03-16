@@ -350,6 +350,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
             "stats": {},
             "ids": [],
             "detail": {},
+            "settings":{},
             "port-test":false,
             "searchText":{
                 name:""
@@ -411,7 +412,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
             torrent: 5000,
             active: 5000,
             detail: 5000,
-            session: 30000
+            session: 15000
         };
 
         //获取session
@@ -424,7 +425,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
             $scope.pool.ajax.session.promise.then(function(response) {
                 sesseionErrCount = 0;
                 $scope.dataStorage.global = response.data.arguments;
-                $scope.dataStorage.globalOrignal = _.clone(response.data.arguments);
+                // $scope.dataStorage.globalOrignal = _.clone(response.data.arguments);
             }, function(reason) {
                 var val = true;
                 var str = reason.response.data;
@@ -456,7 +457,10 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                             $scope.modal.show({
                                 type:"waring",
                                 title:"一分钟内请求Session失败次数过多",
-                                content:"请检查您的网络是否顺畅，或点击确定通过刷新尝试解决！",
+                                content:"请检查您的网络是否顺畅，或点击刷新尝试解决！",
+                                btnText:{
+                                    submit:"刷新"
+                                },
                                 btnType : 2,
                                 submitFunc : function () {
                                     $window.location.reload();
@@ -493,7 +497,10 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 $scope.modal.show({
                     type:"waring",
                     title:"查询统计数据失败",
-                    content:"请检查您的网络是否顺畅，或点击确定重新加载一次！",
+                    content:"请检查您的网络是否顺畅，或点击重载尝试重新加载一次统计数据！",
+                    btnText:{
+                        submit:"重载"
+                    },
                     btnType : 2,
                     submitFunc : function () {
                         $scope.getStatsData();
@@ -533,7 +540,10 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                         $scope.modal.show({
                             type:"waring",
                             title:"短期内多次查询活动任务失败",
-                            content:"请检查您的网络是否顺畅，或点击确定通过刷新尝试解决！",
+                            content:"请检查您的网络是否顺畅，或点击重载尝试重新加载一次活动任务数据！",
+                            btnText:{
+                                submit:"重载"
+                            },
                             btnType : 2,
                             submitFunc : function () {
                                 $scope.loopGetTorrentData();
@@ -587,7 +597,10 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 $scope.modal.show({
                     type:"waring",
                     title:"获取传输任务列表数据失败",
-                    content:"请检查您的网络是否顺畅，或点击确定重新加载一次！",
+                    content:"请检查您的网络是否顺畅，或点击重载重新加载任务列表一次！",
+                    btnText:{
+                        submit:"重载"
+                    },
                     btnType : 2,
                     submitFunc : function () {
                         $scope.loopGetTorrentData();
@@ -913,7 +926,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                     html = $("#blankDetail").html();
                 }else if(typeof $scope.dataStorage.selectedIndex === "number"){
                     html = $("#detail").html();
-                    $scope.detail.noneBlankTemplate = true
+                    $scope.detail.noneBlankTemplate = true;
                 }
 
                 $("#torrent-detail-content").html($compile(html)($scope));
@@ -935,7 +948,10 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                             $scope.modal.show({
                                 type:"waring",
                                 title:"维护明细数据失败",
-                                content:"请检查您的网络是否顺畅，或点击确定通过刷新尝试解决！",
+                                content:"请检查您的网络是否顺畅，或点击重载尝试重新加载明细数据解决！",
+                                btnText:{
+                                    submit:"重载"
+                                },
                                 btnType : 2,
                                 submitFunc : function () {
                                     $scope.modal.close();
@@ -1005,7 +1021,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                         size:"small",
                         btnType : 1
                     });
-                })
+                });
             },
             "show": function() {
                 $scope.detail.status = $scope.detail.status !== true;
@@ -1125,6 +1141,9 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 type:"add",
                 size:"big",
                 title:"添加任务",
+                btnText:{
+                    submit:"添加"
+                },
                 tmp:$scope.tmpUrl.addFiles,
                 submitFunc:function () {
                     $scope.modal.close();
@@ -1209,6 +1228,9 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 title:"确定要从传输任务列表中删除"+ (ids.length > 1?"这些":"此") +"任务吗？",
                 content:ids.length > 1?"已选中多个任务":$scope.dataStorage.torrent[$scope.dataStorage.selectedIndex].name,
                 btnType : 2,
+                btnText:{
+                    submit:"删除"
+                },
                 submitFunc:function () {
                     $scope.modal.close();
                     ajaxService.removeFromList($scope.dataStorage.session, ids).then(function(response) {
@@ -1276,7 +1298,6 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
 
         $scope.submitSettings = function (params) {
             ajaxService.saveSettings($scope.dataStorage.session, params).then(function(response) {
-                $scope.dataStorage.globalOrignal = {};
                 $scope.modal.status = false;
                 $scope.getStatsData();
                 $scope.reload.session();
@@ -1284,8 +1305,11 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 $scope.modal.show({
                     type:"waring",
                     title:"保存设置失败！",
-                    content:"请检查您的网络是否顺畅，或点击确定再此尝试保存！",
+                    content:"请检查您的网络是否顺畅，或点击重试再尝试一次！",
                     size:"small",
+                    btnText:{
+                        submit:"重试"
+                    },
                     btnType : 2,
                     submitFunc:function () {
                         $scope.submitSettings(params);
@@ -1326,19 +1350,21 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                     op.$event.stopPropagation();
                 }
 
-                if($scope.modal.status === true){
-                    return false;
-                }
+                if($scope.modal.status === true){return false;}
 
-                if(op.size === undefined){
-                    $scope.modal.size = "small";
-                }
+                $scope.modal.size = op.size === undefined?"small":op.size;
 
-                if(op.tmp !== undefined){
-                    $scope.modal.tmp = op.tmp;
+                if(!op.btnText){
+                    op.btnText = {
+                        submit:"确定",
+                        cancel:"关闭"
+                    };
                 }else{
-                    $scope.modal.tmp = $scope.tmpUrl.modal;
+                    op.btnText.submit = (op.btnText.submit === "" || !op.btnText.submit)?"确定":op.btnText.submit;
+                    op.btnText.cancel = (op.btnText.cancel === "" || !op.btnText.cancel)?"关闭":op.btnText.cancel;
                 }
+
+                $scope.modal.tmp = op.tmp !== undefined?op.tmp:$scope.tmpUrl.modal;
 
                 var html = $("#"+ $scope.modal.tmp).html();
                 $("#modal").html($compile(html)($scope));
@@ -1366,15 +1392,10 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 $("#modal-bg").removeClass(className);
                 $("#modal").removeClass(className);
 
-                //如果是设置页面关闭窗口，并没有保存，则重新轮询session
-                if($scope.modal.tmp === $scope.tmpUrl.settings){
-                    $scope.reload.session();
-                }
-
-                setTimeout(function () {
+                $timeout(function () {
                     $scope.modal.status = false;
                     $scope.modal.tmp = "";
-                },240);
+                },233);
             },
             "selectTagContent":function ($index) {
                 return $scope.tag.index === $index;
@@ -1425,7 +1446,8 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
 
                 switch (index){
                     case 0:
-                        clearInterval($scope.pool.loop.session);
+
+                        $scope.dataStorage.settings = _.clone($scope.dataStorage.global);
                         ajaxService.portTest($scope.dataStorage.session).then(function (response) {
                             $scope.dataStorage["port-test"] = response.data["arguments"]["port-is-open"];
                         },function (reason) {
@@ -1441,10 +1463,13 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                             size:"size-window",
                             tmp:$scope.tmpUrl.settings,
                             btnType : 2,
+                            btnText:{
+                                submit:"保存"
+                            },
                             submitFunc : function () {
                                 var param = {};
-                                _.each($scope.dataStorage.global,function (value,key) {
-                                    if(value !== $scope.dataStorage.globalOrignal[key]){
+                                _.each($scope.dataStorage.settings,function (value,key) {
+                                    if(value !== $scope.dataStorage.global[key]){
                                         param[key] = value;
                                     }
                                 });
