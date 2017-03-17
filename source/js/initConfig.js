@@ -556,20 +556,13 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
             });
         };
 
-        //排序种子数据
-        $scope.sortTorrentData = function() {
-            $scope.dataStorage.torrent = _.sortBy($scope.dataStorage.torrent, function(item) {
-                return -item.addedDate;
-            });
-            $scope.getTotalSpeed();
-            return $scope.dataStorage.torrent;
-        };
-
         //循环获取种子数据
         $scope.loopGetTorrentData = function() {
             //get all torrent(list)
             $scope.pool.ajax.torrent = ajaxService.getTorrent($scope.dataStorage.session);
             $scope.pool.ajax.torrent.promise.then(function(response) {
+
+                //对种子排序
                 $scope.dataStorage.torrent = _.sortBy(response.data.arguments.torrents, function(item) {
                     return -item.addedDate;
                 });
