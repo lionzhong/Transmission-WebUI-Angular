@@ -33,7 +33,7 @@
       font-size: $font-size-base;
       color: lighten($gray-0,60%);
       >span{
-        margin: 0 0 0 10px;
+        margin: 0 10px 0 0;
       }
     }
     >.name,>.status,>.progess-bar{
@@ -52,13 +52,11 @@
       font-family: Roboto;
       font-weight: 500;
     }
-    >.transform-data{
-    }
     &.rechecking{
       >.progess-bar{
         >div{
           background-color: $prime-red;
-          animation: rechecking 1.5s infinite;
+          animation: downloading 1.5s infinite;
           will-change: animation;
         }
       }

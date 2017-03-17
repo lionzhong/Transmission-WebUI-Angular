@@ -237,6 +237,26 @@ define(function () {
         return parseFloat((parseZero(num)).toFixed(2));
     };
 
+    var floorToPercent = function (num) {
+        var str = "";
+        if(num%1===0){
+            str = num*100 + "%";
+        }else{
+            str = parseInt(num*100) + "%";
+        }
+        return str;
+    };
+
+    var getPercent = function (num1,num2) {
+        var $num = 0;
+        if(num1 === num2){
+            $num = 100;
+        }else{
+            $num = parseFloat((num1 / num2).toFixed(2));
+        }
+        return $num;
+    };
+
     //图表组件默认颜色组
     var colorGroup = ["#F7DC6F", "#A9CCE3", "#D7BDE2", "#AF7AC5", "#26C6DA", "#7986CB", "#A3E4D7", "#52BE80", "#E59866", "#B2BABB", "#F1948A", "#3498DB", "#D0D3D4", "#E74C3C", "#9FA8DA", "#A1887F", "#C5E1A5", "#FFC107"];
 
@@ -251,6 +271,8 @@ define(function () {
         "parseFullDate": parseFullDate,
         "parseFloat2": parseFloat2,
         "secondsToTime":secondsToTime,
-        "colorGroup":colorGroup
+        "colorGroup":colorGroup,
+        "floorToPercent":floorToPercent,
+        "getPercent":getPercent
     };
 });

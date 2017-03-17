@@ -76,7 +76,7 @@
         <div class="name">{{item.name}}</div>
         <div class="status" ng-bind-html="parseText.Status($index)"></div>
         <div class="progess-bar">
-            <div ng-style="{'width':item.percentDone < 1 ? item.percentDone * 100 + '%':100 + '%'}"></div>
+            <div ng-style="{'width':getProgessBarWidth($index)}"></div>
         </div>
         <div class="transform-data" ng-bind-html="parseText.TransformData($index)"></div>
     </li>

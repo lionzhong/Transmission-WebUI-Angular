@@ -574,6 +574,8 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                     return -item.addedDate;
                 });
 
+                $scope.dataStorage.torrent = response.data.arguments.torrents;
+
                 $scope.dataStorage.ids = [];
                 _.each($scope.dataStorage.torrent, function(obj, index) {
                     $scope.dataStorage.ids.push(obj.id);
@@ -610,9 +612,13 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
 
         //选择某下载任务
         $scope.selectTorrent = function(index) {
+
             if (index === $scope.dataStorage.selectedIndex) {
                 return false;
             }
+
+            // console.log($scope.dataStorage.torrent[index]);
+
             $scope.dataStorage.selectedIndex = index;
             $scope.detail.compileTemplate();
             if ($scope.detail.status === true) {
@@ -691,6 +697,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
 
         //解析下载任务的样式名
         $scope.parsTorrentClassName = function(status, index) {
+            var data= $scope.dataStorage.torrent[index]
             var className = "";
             //4正在下载
             switch (status) {
@@ -701,7 +708,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                     className = "rechecking";
                     break;
                 case 4:
-                    className = "downloading";
+                    className = data.metadataPercentComplete < 1?"rechecking":"downloading";
                     break;
                 case 6:
                     className = "seeding";
@@ -734,28 +741,6 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
             return tr.parseFloat2(num);
         };
 
-        //获取状态文本
-        $scope.getStatusText = function(op) {
-            var str = "";
-            switch (op.status) {
-                case 0:
-                    if (op.metaComplete < 1) {
-                        str = "磁性链接下载元数据中";
-                    } else {
-                        str = "已暂停";
-                    }
-                    break;
-                case 4:
-                    str = "下载中";
-                    break;
-                case 6:
-                    str = "做种中";
-                    break;
-            }
-
-            return str;
-        };
-
         //获取运行时长
         $scope.howLong = function(start) {
             return $scope.parseEta(parseInt((new Date().getTime()) / 1000) - start);
@@ -774,7 +759,22 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 switch (data.status) {
                     case 0:
                         // className = "paused";
-                        html += "已暂停";
+                        if(data.isFinished === true){
+
+                        }else{
+                            html += "已暂停";
+                        }
+                        if(data.percentDone < 1){
+                            html = "已暂停";
+                        }else {
+                            if (data.seedRatioLimit > data.uploadRatio) {
+                                html = "已暂停做种";
+                            }else{
+                                if (data.isFinished === true) {
+                                    html += "已完成做种";
+                                }
+                            }
+                        }
                         break;
                     case 1:
                         //磁性链接
@@ -786,7 +786,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                         html += "<span>(" + (data.recheckProgress < 1 ? tr.parseFloat2(data.recheckProgress * 100) : "100") + "% 已验证)</span>";
                         break;
                     case 4:
-                        html += "下载自";
+                        html += "<span>下载自</span>";
                         html += "<span>" + data.peersSendingToUs + "/" + data.peersConnected + "个用户</span>";
                         html += "<span class=\"icon-download\">";
                         html += $scope.bytesConvert(data.rateDownload) + "/s";
@@ -796,7 +796,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                         html += "</span>";
                         break;
                     case 6:
-                        html += "分享至";
+                        html += "<span>做种至</span>";
                         html += "<span>" + data.peersGettingFromUs + "/" + data.peersConnected + "个用户</span>";
                         html += "<span class=\"icon-upload\">";
                         html += $scope.bytesConvert(data.rateUpload) + "/s";
@@ -817,7 +817,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                     case 0:
                         // className = "paused";
                         if (data.metadataPercentComplete < 1) {
-                            html += "磁性链接";
+                            html += "<span>磁性链接</span>";
                             html += "<span>";
                             html += "下载元数据（" + (data.metadataPercentComplete < 1 ? tr.parseFloat2(data.metadataPercentComplete * 100) : "100") + "%）";
                             html += "</span>";
@@ -831,7 +831,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                         }
                         break;
                     case 2:
-                        html += "已下载";
+                        html += "<span>已下载</span>";
                         html += "<span>";
                         html += $scope.bytesConvert(data.totalSize * (data.percentDone < 1 ? data.percentDone : 1)) + "/" + $scope.bytesConvert(data.totalSize);
                         html += "</span>";
@@ -855,9 +855,9 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                     case 4:
                         // className = "downloading";,
                         if (data.metadataPercentComplete < 1) {
-                            html += "磁性链接<span> 下载元数据（" + (data.metadataPercentComplete < 1 ? tr.parseFloat2(data.metadataPercentComplete * 100) : "100") + "）</span>";
+                            html += "<span>磁性链接</span><span> 下载元数据（" + (data.metadataPercentComplete < 1 ? tr.parseFloat2(data.metadataPercentComplete * 100) : "100") + "%）</span>";
                         } else {
-                            html += "已下载";
+                            html += "<span>已下载</span>";
                             html += "<span>";
                             html += $scope.bytesConvert(data.totalSize * (data.percentDone < 1 ? data.percentDone : 1)) + "/" + $scope.bytesConvert(data.totalSize);
                             html += "</span>";
@@ -881,12 +881,13 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                         break;
                     case 6:
                         // className = "seeding";
-                        html += "已上传";
+                        html += "<span>已上传</span>";
                         html += "<span>";
                         html += $scope.bytesConvert(data.uploadedEver) + "/" + $scope.bytesConvert(data.totalSize);
                         html += "</span>";
                         html += "<span>";
-                        html += "分享率(" + tr.parseFloat2(data.uploadRatio) + "%)";
+                        // html += "分享率(" + tr.parseFloat2(data.uploadRatio) + "%)";
+                        html += "分享率(" + data.uploadRatio.toFixed(2) + ")";
                         html += "</span>";
                         if ($scope.getScreenWidth() > 1024) {
                             html += "<span>";
@@ -901,6 +902,40 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
 
                 return $sce.trustAsHtml(html);
             }
+        };
+
+        $scope.getProgessBarWidth = function (index) {
+            var data = $scope.dataStorage.torrent[index];
+            var width = "";
+            switch (data.status) {
+                case 0:
+                    // className = "paused";
+                    if(data.percentDone < 1){
+                        width = tr.floorToPercent(data.percentDone);
+                    }else{
+                        width = data.seedRatioLimit <= data.uploadRatio?"100%":tr.floorToPercent(data.uploadRatio);
+                    }
+                    break;
+                case 2:
+                    break;
+                case 4:
+                    // className = "downloading";,percentDone
+                    if(data.metadataPercentComplete < 1){
+                        width = tr.floorToPercent(data.metadataPercentComplete)
+                    }else{
+                        width = tr.floorToPercent(data.percentDone);
+                    }
+                    break;
+                case 6:
+                    width = data.seedRatioLimit <= data.uploadRatio?"100%":tr.floorToPercent(data.uploadRatio);
+                    // className = "seeding";
+                    break;
+                default:
+                    width = data.seedRatioLimit <= data.uploadRatio?"100%":tr.floorToPercent(data.uploadRatio);
+                    // className = "seeding";
+                    break;
+            }
+            return width;
         };
 
         //明细
