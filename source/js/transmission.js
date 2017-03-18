@@ -257,6 +257,10 @@ define(function () {
         return $num;
     };
 
+    var getRatioPercent = function(limitRatio,ratio){
+        return parseFloat((ratio/limitRatio).toFixed(4))*100 + "%";
+    };
+
     //图表组件默认颜色组
     var colorGroup = ["#F7DC6F", "#A9CCE3", "#D7BDE2", "#AF7AC5", "#26C6DA", "#7986CB", "#A3E4D7", "#52BE80", "#E59866", "#B2BABB", "#F1948A", "#3498DB", "#D0D3D4", "#E74C3C", "#9FA8DA", "#A1887F", "#C5E1A5", "#FFC107"];
 
@@ -273,6 +277,7 @@ define(function () {
         "secondsToTime":secondsToTime,
         "colorGroup":colorGroup,
         "floorToPercent":floorToPercent,
-        "getPercent":getPercent
+        "getPercent":getPercent,
+        "getRatioPercent":getRatioPercent
     };
 });

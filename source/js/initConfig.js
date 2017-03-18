@@ -610,7 +610,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 return false;
             }
 
-            // console.log($scope.dataStorage.torrent[index]);
+            console.log($scope.dataStorage.torrent[index]);
 
             $scope.dataStorage.selectedIndex = index;
             $scope.detail.compileTemplate();
@@ -906,7 +906,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                     if(data.percentDone < 1){
                         width = tr.floorToPercent(data.percentDone);
                     }else{
-                        width = data.seedRatioLimit <= data.uploadRatio?"100%":tr.floorToPercent(data.uploadRatio);
+                        width = data.seedRatioLimit <= data.uploadRatio?"100%":tr.getRatioPercent(data.seedRatioLimit,data.uploadRatio);
                     }
                     break;
                 case 2:
@@ -920,11 +920,11 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                     }
                     break;
                 case 6:
-                    width = data.seedRatioLimit <= data.uploadRatio?"100%":tr.floorToPercent(data.uploadRatio);
+                    width = data.seedRatioLimit <= data.uploadRatio?"100%":tr.getRatioPercent(data.seedRatioLimit,data.uploadRatio);
                     // className = "seeding";
                     break;
                 default:
-                    width = data.seedRatioLimit <= data.uploadRatio?"100%":tr.floorToPercent(data.uploadRatio);
+                    width = data.seedRatioLimit <= data.uploadRatio?"100%":tr.getRatioPercent(data.seedRatioLimit,data.uploadRatio);
                     // className = "seeding";
                     break;
             }
