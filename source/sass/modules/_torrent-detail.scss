@@ -148,7 +148,32 @@
     margin-bottom: 20px;
   }
   >h4{
-    >i{font-size: $font-size-base;
+    @include clearfix;
+    >span{
+      cursor: pointer;
+      float: right;
+      font-size: $font-size-base;
+      >b{
+        transition: color 0.233s;
+        will-change: color;
+        color: $gray-100;
+      }
+      >i{
+        color: $gray-50;
+        transition: color 0.233s;
+        will-change: color;
+      }
+      &.total{
+        >b{
+          color: $gray-50;
+        }
+        >i{
+          color: $gray-100;
+        }
+      }
+    }
+    >i{
+      font-size: $font-size-base;
       vertical-align: middle;
       margin-right: 5px;
       &:before{
@@ -171,7 +196,7 @@
     }
   }
   .download-speed-chart{
-    height: 70px;
+    height: 90px;
     margin-bottom: 20px;
   }
   .table{

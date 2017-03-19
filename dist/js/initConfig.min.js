@@ -626,6 +626,9 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                     }
 
                     $scope.speedChart.setOption(option);
+                    $scope.speedChartData.xAxis = option.xAxis[0].data;
+                    $scope.speedChartData.download = option.series[0].data;
+                    $scope.speedChartData.upload = option.series[1].data;
                 }
             }, function(reason) {
                 activeErrCount += 1;
@@ -1094,6 +1097,23 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
             },
             "allPriorityStatus":-2,
             "status": false,
+            "chartMaxMode":false,//true 以总上限占比统计
+            "toggleChartMaxMode":function () {
+                if($scope.speedChart !== undefined){
+                    $scope.detail.chartMaxMode = $scope.detail.chartMaxMode !== true;
+                    var options = {
+                        yAxis:[
+                            {
+                                max:$scope.detail.chartMaxMode === true?$scope.dataStorage.global["alt-speed-down"]:"auto"
+                            },
+                            {
+                                max:$scope.detail.chartMaxMode === true?$scope.dataStorage.global["alt-speed-up"]:"auto"
+                            }
+                        ]
+                    };
+                    $scope.speedChart.setOption(options);
+                }
+            },
             "torrentData": false,
             "selectedTabIndex": 0,
             "noneBlankTemplate":false,
@@ -1234,7 +1254,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                                         }
                                     },
                                     grid: {
-                                        top:0,
+                                        top:20,
                                         left: "-14.29%",
                                         right: 0,
                                         bottom: 20,
@@ -1260,26 +1280,6 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                                                 }
                                             },
                                             boundaryGap : false
-                                            // data : (function(){
-                                            //     var arr = [];
-                                            //     var time = new Date().getTime();
-                                            //     for(var i = 7;i > 0;i--){
-                                            //         arr.push({
-                                            //             value:tr.getFullTime(time - i*$scope.loopFragment.active),
-                                            //             textStyle:{
-                                            //                 align :"right"
-                                            //             }
-                                            //         });
-                                            //     }
-                                            //     arr.push({
-                                            //         value:tr.getFullTime(time),
-                                            //         textStyle:{
-                                            //             align :"right"
-                                            //         }
-                                            //     });
-                                            //
-                                            //     return arr;
-                                            // })()
                                         }
                                     ],
                                     yAxis : [
@@ -1325,7 +1325,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                                     ],
                                     series : [
                                         {
-                                            name:"dowanload",
+                                            name:"下载速度",
                                             type:"line",
                                             smooth:true,
                                             showAllSymbol:false,
@@ -1348,19 +1348,9 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                                                     color:"#4779bd"
                                                 }
                                             }
-                                            // data:(function(){
-                                            //     var arr = [30, 120, 132, 101, 134, 90, 230];
-                                            //     var data = tr.bytesConvert({
-                                            //         data:$scope.detail.torrentData.rateDownload,
-                                            //         band:1024,
-                                            //         spliceUnit:true
-                                            //     });
-                                            //     arr.push(parseFloat(data.num));
-                                            //     return arr;
-                                            // })()
                                         },
                                         {
-                                            name:"upload",
+                                            name:"上传速度",
                                             type:"line",
                                             smooth:true,
                                             showAllSymbol:false,
@@ -1383,16 +1373,6 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                                                     color:"#34cbd0"
                                                 }
                                             }
-                                            // data:(function(){
-                                            //     var arr = [60, 20, 80, 70, 200, 88, 60];
-                                            //     var data = tr.bytesConvert({
-                                            //         data:$scope.detail.torrentData.rateUpload,
-                                            //         band:1024,
-                                            //         spliceUnit:true
-                                            //     });
-                                            //     arr.push(parseFloat(data.num));
-                                            //     return arr;
-                                            // })()
                                         }
                                     ]
                                 };
@@ -1410,6 +1390,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                                                 $scope.speedChart.resize();
                                             });
                                         }
+                                        console.log($scope.speedChartData);
                                     });
                                 });
                             }else{
