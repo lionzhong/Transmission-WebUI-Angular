@@ -713,7 +713,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 return false;
             }
 
-            console.log($scope.dataStorage.torrent[index]);
+            // console.log($scope.dataStorage.torrent[index]);
 
             $scope.dataStorage.selectedIndex = index;
             $scope.detail.compileTemplate();
