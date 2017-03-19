@@ -126,7 +126,6 @@
       }
     }
   }
-
 }
 .deail-contents{
   color: lighten($gray-0,75%);
@@ -146,6 +145,33 @@
   >h3{
     font-size: $font-size-large;
     font-weight: bold;
+    margin-bottom: 20px;
+  }
+  >h4{
+    >i{font-size: $font-size-base;
+      vertical-align: middle;
+      margin-right: 5px;
+      &:before{
+        width: 12px;
+        height: 12px;
+        position: relative;
+        top: -2px;
+        background-color: $prime-blue;
+        vertical-align: middle;
+        content: "";
+        display: inline-block;
+        border-radius: 3px;
+        margin-right: 5px;
+      }
+      &.chart-legend-upload{
+        &:before{
+          background-color: $prime-green;
+        }
+      }
+    }
+  }
+  .download-speed-chart{
+    height: 70px;
     margin-bottom: 20px;
   }
   .table{

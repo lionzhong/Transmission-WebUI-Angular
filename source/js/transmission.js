@@ -204,6 +204,11 @@ define(function () {
         return simple !== true ? fullDate + " " + fullTime : fullDate;
     };
 
+    var getFullTime = function(date){
+        var $date = new Date(date);
+        return parseTime($date.getHours(), $date.getMinutes(), $date.getSeconds());
+    }
+
     var secondsToTime = function (second) {
         if (!second) {
             return 0;
@@ -278,6 +283,7 @@ define(function () {
         "colorGroup":colorGroup,
         "floorToPercent":floorToPercent,
         "getPercent":getPercent,
-        "getRatioPercent":getRatioPercent
+        "getRatioPercent":getRatioPercent,
+        "getFullTime":getFullTime
     };
 });

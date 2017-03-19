@@ -16,11 +16,12 @@ requirejs.config({
         "angular-route":"angular/angular-route.min",
         "angular-touch":"angular/angular-touch.min",
         "lodash":"lodash/dist/lodash.min",
-        "transmission":"../dist/js/transmission.min",
+        "echarts":"echarts/echarts.min",
         "perfectScroll":"perfect-scrollbar/perfect-scrollbar.jquery.min",
         "jQueryScrollbar":"jQuery-Scrollbar/jquery.scrollbar.min",
         "mnTouch":"mn-touch/dist/mn-touch.min",
         "iscroll":"iscroll/build/iscroll-lite",
+        "transmission":"../dist/js/transmission.min",
         "localData":"../dist/js/localdata.min",
         "init":"../dist/js/initConfig.min"
     },

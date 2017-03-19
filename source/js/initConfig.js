@@ -311,7 +311,8 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 "activeTorrent": 0,
                 "session": 0,
                 "sessionStats":0,
-                "detail": 0
+                "detail": 0,
+                "detailSpeedChart":0
             },
             "ajax": {
                 "torrent": {},
@@ -412,6 +413,12 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
             active: 5000,
             detail: 5000,
             session: 15000
+        };
+
+        $scope.speedChartData = {
+            xAxis:[],
+            download:[],
+            upload:[]
         };
 
         //获取session
@@ -526,7 +533,100 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                         _.merge($scope.dataStorage.torrent[$index], value);
                     }
                 });
+
+                var total = {
+                    "oldMax":{
+                        download:$scope.dataStorage.totalSpeed.download,
+                        upload:$scope.dataStorage.totalSpeed.upload
+                    },
+                    "newMax":{
+                        download:0,
+                        upload:0
+                    }
+                };
+
                 $scope.getTotalSpeed();
+                total.newMax.download = $scope.dataStorage.totalSpeed.download;
+                total.newMax.upload = $scope.dataStorage.totalSpeed.upload;
+
+                if($scope.speedChart !== undefined && $scope.detail.status === true){
+                    var option ={
+                        xAxis:[{
+                            data:(function () {
+                                var time = new Date().getTime();
+                                $scope.speedChartData.xAxis.splice(0,1);
+                                $scope.speedChartData.xAxis.push({
+                                    value:tr.getFullTime(time),
+                                    textStyle:{
+                                        align :"right"
+                                    }
+                                });
+                                return $scope.speedChartData.xAxis;
+                            })()
+                        }],
+                        yAxia:[{
+                            data:parseFloat(tr.bytesConvert({
+                                data:$scope.dataStorage.totalSpeed.download,
+                                band:1024,
+                                spliceUnit:true
+                            }).num)
+                        },{
+                            data:parseFloat(tr.bytesConvert({
+                                data:$scope.dataStorage.totalSpeed.upload,
+                                band:1024,
+                                spliceUnit:true
+                            }).num)
+                        }],
+                        series:[{
+                            data:(function () {
+                                $scope.speedChartData.download.splice(0,1);
+                                $scope.speedChartData.download.push(tr.bytesConvert({
+                                    data:$scope.detail.torrentData.rateDownload,
+                                    band:1024,
+                                    spliceUnit:true
+                                }).num);
+                                return $scope.speedChartData.download;
+                            })()
+                        },{
+                            data:(function () {
+                                $scope.speedChartData.upload.splice(0,1);
+                                $scope.speedChartData.upload.push(tr.bytesConvert({
+                                    data:$scope.detail.torrentData.rateUpload,
+                                    band:1024,
+                                    spliceUnit:true
+                                }).num);
+                                return $scope.speedChartData.upload;
+                            })()
+                        }]
+                    };
+
+                    //解析总上传速度和下载速度是否需要更新
+                    if(total.oldMax.download !== total.newMax.download || total.oldMax.upload !== total.newMax.upload){
+                        option.yAxia = [
+                            {
+                                max:total.oldMax.download
+                            },
+                            {
+                                max:total.oldMax.upload
+                            }
+                        ];
+                        if(total.oldMax.download !== total.newMax.download && total.oldMax.upload === total.newMax.upload){
+                            option.yAxia[0].data = parseFloat(tr.bytesConvert({
+                                data:total.newMax.download,
+                                band:1024,
+                                spliceUnit:true
+                            }).num);
+                        }else if(total.oldMax.download === total.newMax.download && total.oldMax.upload !== total.newMax.upload){
+                            option.yAxia[1].data = parseFloat(tr.bytesConvert({
+                                data:total.newMax.upload,
+                                band:1024,
+                                spliceUnit:true
+                            }).num);
+                        }
+                    }
+
+                    $scope.speedChart.setOption(option);
+                }
             }, function(reason) {
                 activeErrCount += 1;
                 if(activeErrCount === 1){
@@ -690,7 +790,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
 
         //解析下载任务的样式名
         $scope.parsTorrentClassName = function(status, index) {
-            var data= $scope.dataStorage.torrent[index]
+            var data= $scope.dataStorage.torrent[index];
             var className = "";
             //4正在下载
             switch (status) {
@@ -753,7 +853,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                     case 0:
                         // className = "paused";
                         if(data.isFinished === true){
-
+                            html += "";
                         }else{
                             html += "已暂停";
                         }
@@ -914,7 +1014,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 case 4:
                     // className = "downloading";,percentDone
                     if(data.metadataPercentComplete < 1){
-                        width = tr.floorToPercent(data.metadataPercentComplete)
+                        width = tr.floorToPercent(data.metadataPercentComplete);
                     }else{
                         width = tr.floorToPercent(data.percentDone);
                     }
@@ -929,6 +1029,59 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                     break;
             }
             return width;
+        };
+
+        $scope.initPartOfChartData = function (torrentData) {
+            return {
+                "xAxis":[{
+                    data : (function () {
+                        var arr = [];
+                        var time = new Date().getTime();
+                        for(var i = 7;i > 0;i--){
+                            arr.push({
+                                value:tr.getFullTime(time - i*$scope.loopFragment.active),
+                                textStyle:{
+                                    align :"right"
+                                }
+                            });
+                        }
+                        arr.push({
+                            value:tr.getFullTime(time),
+                            textStyle:{
+                                align :"right"
+                            }
+                        });
+
+                        return arr;
+                    })()
+                }],
+                "series":[
+                    {
+                        data:(function(){
+                            var arr = [0, 0, 0, 0, 0, 0, 0];
+                            var data = tr.bytesConvert({
+                                data:torrentData.rateDownload,
+                                band:1024,
+                                spliceUnit:true
+                            });
+                            arr.push(parseFloat(data.num));
+                            return arr;
+                        })()
+                    },
+                    {
+                        data:(function(){
+                            var arr = [0, 0, 0, 0, 0, 0, 0];
+                            var data = tr.bytesConvert({
+                                data:torrentData.rateUpload,
+                                band:1024,
+                                spliceUnit:true
+                            });
+                            arr.push(parseFloat(data.num));
+                            return arr;
+                        })()
+                    }
+                ]
+            };
         };
 
         //明细
@@ -948,10 +1101,11 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 if($scope.detail.noneBlankTemplate === true){return;}
 
                 var html = "";
+                var $type = typeof $scope.dataStorage.selectedIndex;
 
-                if(typeof $scope.dataStorage.selectedIndex === "string"){
+                if($type === "string"){
                     html = $("#blankDetail").html();
-                }else if(typeof $scope.dataStorage.selectedIndex === "number"){
+                }else if($type === "number" || ($type === "object" && $type.length !== undefined)){
                     html = $("#detail").html();
                     $scope.detail.noneBlankTemplate = true;
                 }
@@ -995,9 +1149,6 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                     }else if(_.every($scope.dataStorage.detail.fileStats, ["priority", 1]) === true){
                         $scope.detail.allPriorityStatus = 1;
                     }
-
-                    // var html = $(""#file-list-trigger").html();
-                    // $(""#file-list-trigger-container").html($compile(html)($scope));
                 }, function(reason) {
                     $scope.modal.show({
                         type:"waring",
@@ -1056,6 +1207,222 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 if ($scope.detail.status === true) {
                     if ($scope.dataStorage.selectedIndex !== '') {
                         $scope.detail.torrentData = $scope.dataStorage.torrent[$scope.dataStorage.selectedIndex];
+
+                        require(["echarts"],function(echarts){
+                            //显示图表
+                            $scope.echartsLoaded = true;
+
+                            //加载图表数据
+                            if($scope.speedChart === undefined){
+                                //第一次加载图表
+                                var options = {
+                                    title: {
+                                        text: "堆叠区域图",
+                                        show:false
+                                    },
+                                    tooltip : {
+                                        show:false,
+                                        trigger: "axis"
+                                    },
+                                    legend: {
+                                        show:false
+                                    },
+                                    toolbox: {
+                                        show:false,
+                                        feature: {
+                                            saveAsImage: {}
+                                        }
+                                    },
+                                    grid: {
+                                        top:0,
+                                        left: "-14.29%",
+                                        right: 0,
+                                        bottom: 20,
+                                        containLabel: false
+                                    },
+                                    xAxis : [
+                                        {
+                                            type : "category",
+                                            splitLine:{
+                                                show:false
+                                            },
+                                            axisLine:{
+                                                lineStyle:{
+                                                    color:"#FFF"
+                                                }
+                                            },
+                                            axisTick:{
+                                                show:false
+                                            },
+                                            axisLabel:{
+                                                textStyle:{
+                                                    color: "#888"
+                                                }
+                                            },
+                                            boundaryGap : false
+                                            // data : (function(){
+                                            //     var arr = [];
+                                            //     var time = new Date().getTime();
+                                            //     for(var i = 7;i > 0;i--){
+                                            //         arr.push({
+                                            //             value:tr.getFullTime(time - i*$scope.loopFragment.active),
+                                            //             textStyle:{
+                                            //                 align :"right"
+                                            //             }
+                                            //         });
+                                            //     }
+                                            //     arr.push({
+                                            //         value:tr.getFullTime(time),
+                                            //         textStyle:{
+                                            //             align :"right"
+                                            //         }
+                                            //     });
+                                            //
+                                            //     return arr;
+                                            // })()
+                                        }
+                                    ],
+                                    yAxis : [
+                                        {
+                                            type : "value",
+                                            splitNumber:0,
+                                            minInterval:0,
+                                            silent:true,
+                                            splitLine:{
+                                                show:false
+                                            },
+                                            axisLine:{
+                                                show:false
+                                            },
+                                            axisTick:{
+                                                show:false
+                                            },
+                                            axisLabel:{
+                                                show:false
+                                            },
+                                            // max:$scope.dataStorage.global["alt-speed-down"],
+                                            min:0
+                                        }, {
+                                            type : "value",
+                                            splitNumber:0,
+                                            minInterval:0,
+                                            silent:true,
+                                            splitLine:{
+                                                show:false
+                                            },
+                                            axisLine:{
+                                                show:false
+                                            },
+                                            axisTick:{
+                                                show:false
+                                            },
+                                            axisLabel:{
+                                                show:false
+                                            },
+                                            // max:$scope.dataStorage.global["alt-speed-up"],
+                                            min:0
+                                        }
+                                    ],
+                                    series : [
+                                        {
+                                            name:"dowanload",
+                                            type:"line",
+                                            smooth:true,
+                                            showAllSymbol:false,
+                                            areaStyle: {normal: {
+                                                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                                    {
+                                                        offset: 0, color: "rgba(71, 121, 189, 1)" // 0% 处的颜色
+                                                    }, {
+                                                        offset: 1, color: "rgba(71, 121, 189, 0)" // 100% 处的颜色
+                                                    }], false)
+                                            }},
+                                            showSymbol:true,
+                                            itemStyle:{
+                                                normal:{
+                                                    opacity:0
+                                                }
+                                            },
+                                            lineStyle :{
+                                                normal:{
+                                                    color:"#4779bd"
+                                                }
+                                            }
+                                            // data:(function(){
+                                            //     var arr = [30, 120, 132, 101, 134, 90, 230];
+                                            //     var data = tr.bytesConvert({
+                                            //         data:$scope.detail.torrentData.rateDownload,
+                                            //         band:1024,
+                                            //         spliceUnit:true
+                                            //     });
+                                            //     arr.push(parseFloat(data.num));
+                                            //     return arr;
+                                            // })()
+                                        },
+                                        {
+                                            name:"upload",
+                                            type:"line",
+                                            smooth:true,
+                                            showAllSymbol:false,
+                                            areaStyle: {normal: {
+                                                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                                    {
+                                                        offset: 0, color: "rgba(52,203,208, 1)" // 0% 处的颜色
+                                                    }, {
+                                                        offset: 1, color: "rgba(52,203,208, 0)" // 100% 处的颜色
+                                                    }], false)
+                                            }},
+                                            showSymbol:false,
+                                            itemStyle:{
+                                                normal:{
+                                                    opacity:0
+                                                }
+                                            },
+                                            lineStyle :{
+                                                normal:{
+                                                    color:"#34cbd0"
+                                                }
+                                            }
+                                            // data:(function(){
+                                            //     var arr = [60, 20, 80, 70, 200, 88, 60];
+                                            //     var data = tr.bytesConvert({
+                                            //         data:$scope.detail.torrentData.rateUpload,
+                                            //         band:1024,
+                                            //         spliceUnit:true
+                                            //     });
+                                            //     arr.push(parseFloat(data.num));
+                                            //     return arr;
+                                            // })()
+                                        }
+                                    ]
+                                };
+                                var partOfData = $scope.initPartOfChartData($scope.detail.torrentData);
+                                options = _.merge(options,partOfData);
+                                $scope.$apply(function(){
+                                    $timeout(function(){
+                                        if($scope.speedChart === undefined){
+                                            $scope.speedChart = echarts.init(document.getElementById("download-speed-chart"));
+                                            $scope.speedChart.setOption(options);
+                                            $scope.speedChartData.xAxis = options.xAxis[0].data;
+                                            $scope.speedChartData.download = options.series[0].data;
+                                            $scope.speedChartData.upload = options.series[1].data;
+                                            $(window).resize(function () {
+                                                $scope.speedChart.resize();
+                                            });
+                                        }
+                                    });
+                                });
+                            }else{
+                                //切换下载任务时重新初始化图表数据
+                                var $partOfData = $scope.initPartOfChartData($scope.detail.torrentData);
+                                $scope.speedChart.setOption($partOfData);
+                                $scope.speedChartData.xAxis = $partOfData.xAxis[0].data;
+                                $scope.speedChartData.download = $partOfData.series[0].data;
+                                $scope.speedChartData.upload = $partOfData.series[1].data;
+                            }
+                        },function(){
+                            console.log("echarts load fail!");
+                        });
                         $scope.detail.loopGetDetail();
                     }
                 } else {
@@ -1162,7 +1529,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 return false;
             }
 
-            $scope.dataStorage.addTransform['download-dir'] = $scope.dataStorage.global['download-dir'];
+            $scope.dataStorage.addTransform["download-dir"] = $scope.dataStorage.global["download-dir"];
             $event.stopPropagation();
             $scope.modal.show({
                 type:"add",
@@ -1641,6 +2008,10 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
             });
 
             $scope.allLoaded = false;
+
+            $scope.echartsLoaded = false;
+
+            $scope.speedChart = undefined;
 
             document.addEventListener("touchstart", function(event) {
                 // 判断默认行为是否可以被禁用

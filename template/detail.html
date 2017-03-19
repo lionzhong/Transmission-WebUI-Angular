@@ -4,6 +4,11 @@
     </h2>
     <div class="deail-contents" ng-show="detail.selectedTabIndex === 0">
         <h3>活跃状态</h3>
+        <h4>
+            <i class="chart-legend-download">下载速度</i>
+            <i class="chart-legend-upload">上传速度</i>
+        </h4>
+        <div id="download-speed-chart" class="download-speed-chart" ng-if="echartsLoaded === true"></div>
         <div class="table" ng-if="detail.status">
             <table>
                 <tbody>
