@@ -207,7 +207,7 @@ define(function () {
     var getFullTime = function(date){
         var $date = new Date(date);
         return parseTime($date.getHours(), $date.getMinutes(), $date.getSeconds());
-    }
+    };
 
     var secondsToTime = function (second) {
         if (!second) {

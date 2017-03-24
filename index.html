@@ -3,13 +3,13 @@
 <head lang="en">
     <meta charset="UTF-8">
     <title>Transmission Angular</title>
-    <link rel="stylesheet" href="dist/css/transmission.min.css">
-    <link rel="apple-touch-icon-precomposed" href="dist/img/logo.png">
     <meta http-equiv="Cache-control" content="public">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="mobile-web-app-capable" content="yes">
     <meta id="theme-color" name="theme-color" content="#333333">
     <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="dist/css/transmission.min.css">
+    <link rel="apple-touch-icon-precomposed" href="dist/img/logo.png">
     <link rel="icon" href="dist/img/logo.png" sizes="192x192" type="image/logo192.png">
     <link rel="icon" href="dist/img/logo.png" sizes="256x256" type="image/logo256.png">
     <link rel="icon" href="dist/img/logo.png" sizes="384x384" type="image/logo384.png">
@@ -59,7 +59,7 @@
         <div id="hide" class="hide">
             <span class="searchBox" ng-class="{'active':dataStorage.searchText.name !== ''}">
                 <label for="searchBox"><span class="icon-search"></span></label>
-                <input id="searchBox" type="text" ng-model="dataStorage.searchText.name">
+                <input id="searchBox" type="text" ng-model="dataStorage.searchText.name" ng-change="filterChange()">
             </span>
             <span class="icon-download"> {{dataStorage.totalSpeed.download !== 0 ?bytesConvert(dataStorage.totalSpeed.download):0}}/s </span>
             <span class="icon-upload"> {{dataStorage.totalSpeed.upload !== 0 ?bytesConvert(dataStorage.totalSpeed.upload):0}}/s </span>
@@ -73,13 +73,13 @@
     </ul>
 </nav>
 <ul id="torrent-list" class="torrent-list">
-    <li ng-repeat="item in dataStorage.torrent | filter:dataStorage.searchText" ng-class="parsTorrentClassName(item.status,$index)" ng-click="selectTorrent($index)" ng-dblclick="getScreenWidth() > 1024 ?detail.show():false;">
+    <li ng-repeat="item in dataStorage.torrent | filter:dataStorage.searchText" ng-class="parsTorrentClassName(item,$index)" ng-click="selectTorrent($index)" ng-dblclick="getScreenWidth() > 1024 ?detail.show():false;">
         <div class="name">{{item.name}}</div>
-        <div class="status" ng-bind-html="parseText.Status($index)"></div>
+        <div class="status" ng-bind-html="parseText.Status(item)"></div>
         <div class="progess-bar">
-            <div ng-style="{'width':getProgessBarWidth($index)}"></div>
+            <div ng-style="{'width':getProgessBarWidth(item)}"></div>
         </div>
-        <div class="transform-data" ng-bind-html="parseText.TransformData($index)"></div>
+        <div class="transform-data" ng-bind-html="parseText.TransformData(item)"></div>
     </li>
 </ul>
 <section id="torrent-detail" class="torrent-detail" ng-class="{'show':detail.status}">

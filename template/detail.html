@@ -4,7 +4,7 @@
     </h2>
     <div class="deail-contents" ng-show="detail.selectedTabIndex === 0">
         <h3>活跃状态</h3>
-        <h4>
+        <h4 ng-if="echartsLoaded === true">
             <span ng-class="{'total':detail.chartMaxMode === true}" ng-click="detail.toggleChartMaxMode()"><b>稳定度</b>/<i>上限占比</i></span>
             <i class="chart-legend-download">下载速度</i>
             <i class="chart-legend-upload">上传速度</i>

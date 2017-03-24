@@ -410,8 +410,8 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
 
         $scope.loopFragment = {
             torrent: 5000,
-            active: 5000,
-            detail: 5000,
+            active: 8000,
+            detail: 8000,
             session: 15000
         };
 
@@ -486,6 +486,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
             $scope.getSession($scope.dataStorage.session);
             $scope.pool.loop.session = setInterval(function() {
                 $scope.getSession($scope.dataStorage.session);
+
             }, $scope.loopFragment.session);
         };
 
@@ -520,6 +521,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
         var activeStartTime = 0;
         $scope.getRecentlyActiveTorrentData = function() {
             //获取活动中的torrent数据
+            $scope.closeAjax($scope.pool.ajax.activeTorrent);
             $scope.pool.ajax.activeTorrent = ajaxService.getActiveTorrent($scope.dataStorage.session);
             $scope.pool.ajax.activeTorrent.promise.then(function(response) {
                 activeErrCount = 0;
@@ -625,7 +627,10 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                         }
                     }
 
-                    $scope.speedChart.setOption(option);
+                    if( $scope.detail.selectedTabIndex === 0){
+                        $scope.speedChart.setOption(option);
+                    }
+
                     $scope.speedChartData.xAxis = option.xAxis[0].data;
                     $scope.speedChartData.download = option.series[0].data;
                     $scope.speedChartData.upload = option.series[1].data;
@@ -662,6 +667,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
         //循环获取种子数据
         $scope.loopGetTorrentData = function() {
             //get all torrent(list)
+            $scope.closeAjax($scope.pool.ajax.torrent);
             $scope.pool.ajax.torrent = ajaxService.getTorrent($scope.dataStorage.session);
             $scope.pool.ajax.torrent.promise.then(function(response) {
 
@@ -689,7 +695,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 $scope.pool.ajax.activeTorrent = $scope.getRecentlyActiveTorrentData();
                 $scope.pool.loop.activeTorrent = setInterval(function() {
                     $scope.getRecentlyActiveTorrentData();
-                }, $scope.loopFragment.torrent);
+                }, $scope.loopFragment.active);
             }, function(reason) {
                 $scope.modal.show({
                     type:"waring",
@@ -791,12 +797,16 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
             return tr.parseFloat2(num);
         };
 
+        $scope.filterChange = function () {
+            $scope.detail.close();
+            $scope.dataStorage.selectedIndex = -1;
+        };
+
         //解析下载任务的样式名
-        $scope.parsTorrentClassName = function(status, index) {
-            var data= $scope.dataStorage.torrent[index];
+        $scope.parsTorrentClassName = function(item,$index) {
             var className = "";
             //4正在下载
-            switch (status) {
+            switch (item.status) {
                 case 0:
                     className = "paused";
                     break;
@@ -804,7 +814,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                     className = "rechecking";
                     break;
                 case 4:
-                    className = data.metadataPercentComplete < 1?"rechecking":"downloading";
+                    className = item.metadataPercentComplete < 1?"rechecking":"downloading";
                     break;
                 case 6:
                     className = "seeding";
@@ -813,7 +823,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                     className = "seeding";
                     break;
             }
-            if (index === $scope.dataStorage.selectedIndex) {
+            if ($index === $scope.dataStorage.selectedIndex) {
                 className += " selected";
             }
             return className;
@@ -848,8 +858,8 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
 
         //解析torrent列表文字
         $scope.parseText = {
-            "Status": function(index) {
-                var data = $scope.dataStorage.torrent[index];
+            "Status": function(item) {
+                var data = item;
                 var html = "";
 
                 switch (data.status) {
@@ -905,8 +915,8 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
 
                 return $sce.trustAsHtml(html);
             },
-            "TransformData": function(index) {
-                var data = $scope.dataStorage.torrent[index];
+            "TransformData": function(item) {
+                var data = item;
                 var html = "";
 
                 switch (data.status) {
@@ -1000,8 +1010,8 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
             }
         };
 
-        $scope.getProgessBarWidth = function (index) {
-            var data = $scope.dataStorage.torrent[index];
+        $scope.getProgessBarWidth = function (item) {
+            var data = item;
             var width = "";
             switch (data.status) {
                 case 0:
@@ -1034,6 +1044,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
             return width;
         };
 
+        //初始化下载速度图表X轴数据，以及series数据
         $scope.initPartOfChartData = function (torrentData) {
             return {
                 "xAxis":[{
@@ -1139,27 +1150,30 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                     $scope.dataStorage.detail = response.data.arguments.torrents[0];
 
                     $scope.pool.loop.detail = setInterval(function() {
+                        $scope.closeAjax($scope.pool.ajax.detail);
                         $scope.pool.ajax.detail = ajaxService.getDetail($scope.dataStorage.session, [$scope.dataStorage.torrent[$scope.dataStorage.selectedIndex].id]);
                         $scope.pool.ajax.detail.promise.then(function($response) {
                             $scope.dataStorage.detail = _.merge($scope.dataStorage.detail, $response.data.arguments.torrents[0]);
-                        }, function(reason) {
-                            clearInterval($scope.pool.loop.detail);
-                            $scope.closeAjax($scope.pool.ajax.fullDetail);
-                            $scope.closeAjax($scope.pool.ajax.detail);
-                            $scope.modal.show({
-                                type:"waring",
-                                title:"维护明细数据失败",
-                                content:"请检查您的网络是否顺畅，或点击重载尝试重新加载明细数据解决！",
-                                btnText:{
-                                    submit:"重载"
-                                },
-                                btnType : 2,
-                                submitFunc : function () {
-                                    $scope.modal.close();
-                                    $scope.detail.loopGetDetail();
-                                }
-                            });
-                        });
+                        }
+                        // , function(reason) {
+                        //     clearInterval($scope.pool.loop.detail);
+                        //     $scope.closeAjax($scope.pool.ajax.fullDetail);
+                        //     $scope.closeAjax($scope.pool.ajax.detail);
+                        //     $scope.modal.show({
+                        //         type:"waring",
+                        //         title:"维护明细数据失败",
+                        //         content:"请检查您的网络是否顺畅，或点击重载尝试重新加载明细数据解决！",
+                        //         btnText:{
+                        //             submit:"重载"
+                        //         },
+                        //         btnType : 2,
+                        //         submitFunc : function () {
+                        //             $scope.modal.close();
+                        //             $scope.detail.loopGetDetail();
+                        //         }
+                        //     });
+                        // }
+                        );
                     }, $scope.loopFragment.detail);
 
                     if(_.every($scope.dataStorage.detail.fileStats, ["priority", 0]) === true){
@@ -1228,6 +1242,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                     if ($scope.dataStorage.selectedIndex !== '') {
                         $scope.detail.torrentData = $scope.dataStorage.torrent[$scope.dataStorage.selectedIndex];
 
+                        //加载图表组件
                         require(["echarts"],function(echarts){
                             //显示图表
                             $scope.echartsLoaded = true;
@@ -1380,7 +1395,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                                 options = _.merge(options,partOfData);
                                 $scope.$apply(function(){
                                     $timeout(function(){
-                                        if($scope.speedChart === undefined){
+                                        if($scope.speedChart === undefined && $scope.detail.selectedTabIndex === 0){
                                             $scope.speedChart = echarts.init(document.getElementById("download-speed-chart"));
                                             $scope.speedChart.setOption(options);
                                             $scope.speedChartData.xAxis = options.xAxis[0].data;
