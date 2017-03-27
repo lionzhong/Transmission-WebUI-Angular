@@ -292,135 +292,6 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
 
     $app.controller("mainController", ["$scope", "$http", "$q", "$sce", "$timeout", "$window", "$document", "$compile", "ajaxService", function($scope, $http, $q, $sce, $timeout, $window, $document, $compile, ajaxService) {
 
-        var baseTmpUrl = "template/";
-        $scope.detailTemplateLoaded = false;
-        $scope.tmpUrl = {
-            detail: baseTmpUrl + "detail.html",
-            tips:  "modal_t",
-            settings:  "settings",
-            modal: "modal_t",
-            about: "about",
-            statics: "statics",
-            addFiles: "addFiles"
-        };
-
-        //loop pool
-        $scope.pool = {
-            "loop": {
-                "torrent": 0,
-                "activeTorrent": 0,
-                "session": 0,
-                "sessionStats":0,
-                "detail": 0,
-                "detailSpeedChart":0
-            },
-            "ajax": {
-                "torrent": {},
-                "activeTorrent": {},
-                "detail": {},
-                "fullDetail": {},
-                "sessionStats":{},
-                "session":{},
-                "remove":{},
-                "add":{},
-                "pause":{}
-            }
-        };
-
-        //数据
-        $scope.dataStorage = {
-            "session": "",
-            "globalOrignal":{},
-            "global": {
-                "alt-speed-down":0,
-                "alt-speed-up":0,
-                "alt-speed-time-begin":0,
-                "alt-speed-time-end":0,
-                "alt-speed-time-day":127
-                // "encryption":"tolerated"
-                // "seedRatioLimited":false,
-                // "idle-seeding-limit-enabled":false,
-                // "speed-limit-up-enabled":false,
-                // "speed-limit-down-enabled":false,
-                // "alt-speed-time-enabled":false,
-                // "blocklist-enabled":false
-            },
-            "torrent": [],
-            "selectedIndex": "",
-            "stats": {},
-            "ids": [],
-            "detail": {},
-            "settings":{},
-            "port-test":false,
-            "searchText":{
-                name:""
-            },
-            "totalSpeed":{
-                download:0,
-                upload:0
-            },
-            "speed-limit-times":(function () {
-                var start = [];
-                var min = 0;
-                var parseTime = function (mins) {
-                    var str = "";
-                    var hour = 0;
-                    var $mins = 0;
-
-                    if (mins < 60) {
-                        str = "00:" + (mins < 10 ? "0" + mins : mins);
-                    } else {
-                        hour = parseInt(mins / 60);
-                        $mins = mins - (hour * 60);
-                        str = (hour < 10 ? "0" + hour : hour) + ":" + ($mins === 0 ? "00" : $mins);
-                    }
-
-                    return str;
-                };
-                for (var i = 0; i < 96; i++) {
-                    start.push({key:parseTime(min),value:min});
-                    min += 15;
-                }
-                return start;
-            })(),
-            "speed-limit-day":[
-                {"key":"每天","value":127},
-                {"key":"工作日","value":62},
-                {"key":"周末","value":65},
-                {"key":"星期天","value":1},
-                {"key":"星期一","value":2},
-                {"key":"星期二","value":4},
-                {"key":"星期三","value":8},
-                {"key":"星期四","value":16},
-                {"key":"星期五","value":32},
-                {"key":"星期六","value":64}
-            ],
-            "encryption":[
-                {"key":"允许加密","value":"tolerated"},
-                {"key":"喜欢加密","value":"preferred"},
-                {"key":"需要加密","value":"required"}
-            ],
-            "addTransform":{
-                "metainfo":[],
-                "filename":"",
-                "download-dir":"123123",
-                "paused":true
-            }
-        };
-
-        $scope.loopFragment = {
-            torrent: 5000,
-            active: 8000,
-            detail: 8000,
-            session: 15000
-        };
-
-        $scope.speedChartData = {
-            xAxis:[],
-            download:[],
-            upload:[]
-        };
-
         //获取session
         var sesseionErrCount = 0;
         var errStartTime = "";
@@ -519,13 +390,34 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
         //获取正在活动的Torrent数据
         var activeErrCount = 0;
         var activeStartTime = 0;
+        var updateChartSeries = function (op) {
+            var tempData = [];
+            _.each(op.data.echartData.series,function (value,index) {
+                var temp = _.clone(value.data);
+                temp.splice(0,1);
+                temp.push(tr.bytesConvert({
+                    data:op.data[op.character[index]],
+                    band:1024,
+                    spliceUnit:true
+                }).num);
+                tempData.push({data:temp});
+            });
+
+            return tempData;
+        };
+
         $scope.getRecentlyActiveTorrentData = function() {
             //获取活动中的torrent数据
             $scope.closeAjax($scope.pool.ajax.activeTorrent);
             $scope.pool.ajax.activeTorrent = ajaxService.getActiveTorrent($scope.dataStorage.session);
             $scope.pool.ajax.activeTorrent.promise.then(function(response) {
+
+                if(!response){return;}
+
+                //重置获取活动数据的错误计数
                 activeErrCount = 0;
-                //替换数据列表中对应的数据
+
+                //将获取到的活动的torrent数据，更新到所有torrent数据中
                 _.each(response.data.arguments.torrents, function(value, index) {
                     var $index = _.findIndex($scope.dataStorage.torrent, function(o) {
                         return o.id === value.id;
@@ -533,107 +425,34 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
 
                     if ($index > -1) {
                         _.merge($scope.dataStorage.torrent[$index], value);
+
+                        //更新活动的torrent图表数据
+                        $scope.dataStorage.torrent[$index].echartData.xAxis[0].data = (function () {
+                            var time = new Date().getTime();
+                            var tempData = _.clone($scope.dataStorage.torrent[$index].echartData.xAxis[0].data);
+                            tempData.splice(0,1);
+                            tempData.push({
+                                value:tr.getFullTime(time),
+                                textStyle:{
+                                    align :"right"
+                                }
+                            });
+                            return tempData;
+                        })();
+
+                        $scope.dataStorage.torrent[$index].echartData.series = updateChartSeries({data:$scope.dataStorage.torrent[$index],"character":["rateDownload","rateUpload"]});
                     }
                 });
 
-                var total = {
-                    "oldMax":{
-                        download:$scope.dataStorage.totalSpeed.download,
-                        upload:$scope.dataStorage.totalSpeed.upload
-                    },
-                    "newMax":{
-                        download:0,
-                        upload:0
-                    }
-                };
-
+                //更新总下载速度和上传速度
                 $scope.getTotalSpeed();
-                total.newMax.download = $scope.dataStorage.totalSpeed.download;
-                total.newMax.upload = $scope.dataStorage.totalSpeed.upload;
 
+                //图表数据处理，重新刷新图表中的下载速度
                 if($scope.speedChart !== undefined && $scope.detail.status === true){
-                    var option ={
-                        xAxis:[{
-                            data:(function () {
-                                var time = new Date().getTime();
-                                $scope.speedChartData.xAxis.splice(0,1);
-                                $scope.speedChartData.xAxis.push({
-                                    value:tr.getFullTime(time),
-                                    textStyle:{
-                                        align :"right"
-                                    }
-                                });
-                                return $scope.speedChartData.xAxis;
-                            })()
-                        }],
-                        yAxia:[{
-                            data:parseFloat(tr.bytesConvert({
-                                data:$scope.dataStorage.totalSpeed.download,
-                                band:1024,
-                                spliceUnit:true
-                            }).num)
-                        },{
-                            data:parseFloat(tr.bytesConvert({
-                                data:$scope.dataStorage.totalSpeed.upload,
-                                band:1024,
-                                spliceUnit:true
-                            }).num)
-                        }],
-                        series:[{
-                            data:(function () {
-                                $scope.speedChartData.download.splice(0,1);
-                                $scope.speedChartData.download.push(tr.bytesConvert({
-                                    data:$scope.detail.torrentData.rateDownload,
-                                    band:1024,
-                                    spliceUnit:true
-                                }).num);
-                                return $scope.speedChartData.download;
-                            })()
-                        },{
-                            data:(function () {
-                                $scope.speedChartData.upload.splice(0,1);
-                                $scope.speedChartData.upload.push(tr.bytesConvert({
-                                    data:$scope.detail.torrentData.rateUpload,
-                                    band:1024,
-                                    spliceUnit:true
-                                }).num);
-                                return $scope.speedChartData.upload;
-                            })()
-                        }]
-                    };
-
-                    //解析总上传速度和下载速度是否需要更新
-                    if(total.oldMax.download !== total.newMax.download || total.oldMax.upload !== total.newMax.upload){
-                        option.yAxia = [
-                            {
-                                max:total.oldMax.download
-                            },
-                            {
-                                max:total.oldMax.upload
-                            }
-                        ];
-                        if(total.oldMax.download !== total.newMax.download && total.oldMax.upload === total.newMax.upload){
-                            option.yAxia[0].data = parseFloat(tr.bytesConvert({
-                                data:total.newMax.download,
-                                band:1024,
-                                spliceUnit:true
-                            }).num);
-                        }else if(total.oldMax.download === total.newMax.download && total.oldMax.upload !== total.newMax.upload){
-                            option.yAxia[1].data = parseFloat(tr.bytesConvert({
-                                data:total.newMax.upload,
-                                band:1024,
-                                spliceUnit:true
-                            }).num);
-                        }
+                    //展开细节侧边栏时，并且选中的为第一个选项卡则更新图表
+                    if($scope.detail.selectedTabIndex === 0 && $scope.dataStorage.selectedIndex > -1){
+                        $scope.speedChart.setOption($scope.dataStorage.torrent[$scope.dataStorage.selectedIndex].echartData);
                     }
-
-                    if( $scope.detail.selectedTabIndex === 0){
-                        $scope.speedChart.setOption(option);
-                    }
-
-                    $scope.speedChartData.xAxis = option.xAxis[0].data;
-                    $scope.speedChartData.download = option.series[0].data;
-                    $scope.speedChartData.upload = option.series[1].data;
                 }
             }, function(reason) {
                 activeErrCount += 1;
@@ -671,16 +490,18 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
             $scope.pool.ajax.torrent = ajaxService.getTorrent($scope.dataStorage.session);
             $scope.pool.ajax.torrent.promise.then(function(response) {
 
-                //对种子排序
-                $scope.dataStorage.torrent = _.sortBy(response.data.arguments.torrents, function(item) {
-                    return -item.addedDate;
-                });
+                if(!response){return;}
 
                 $scope.dataStorage.torrent = response.data.arguments.torrents;
 
-                $scope.dataStorage.ids = [];
+                //塞入图表初始化数据
+                _.each($scope.dataStorage.torrent,function (value,index) {
+                    value.echartData = $scope.initPartOfChartData(value);
+                });
+
+                $scope.dataStorage.allIds = [];
                 _.each($scope.dataStorage.torrent, function(obj, index) {
-                    $scope.dataStorage.ids.push(obj.id);
+                    $scope.dataStorage.allIds.push(obj.id);
                 });
 
                 $scope.allLoaded = true;
@@ -690,6 +511,9 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 },1000);
 
                 $(".hide").removeClass("hide");
+
+                //更新总下载速度和上传速度
+                $scope.getTotalSpeed();
 
                 //loop the active torrent
                 $scope.pool.ajax.activeTorrent = $scope.getRecentlyActiveTorrentData();
@@ -719,7 +543,7 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 return false;
             }
 
-            // console.log($scope.dataStorage.torrent[index]);
+            console.log($scope.dataStorage.torrent[index]);
 
             $scope.dataStorage.selectedIndex = index;
             $scope.detail.compileTemplate();
@@ -1147,33 +971,17 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
                 $scope.pool.ajax.fullDetail = ajaxService.getFullDetail($scope.dataStorage.session, [$scope.dataStorage.torrent[$scope.dataStorage.selectedIndex].id]);
                 $scope.pool.ajax.fullDetail.promise.then(function(response) {
 
+                    if(!response){return;}
+
                     $scope.dataStorage.detail = response.data.arguments.torrents[0];
 
                     $scope.pool.loop.detail = setInterval(function() {
                         $scope.closeAjax($scope.pool.ajax.detail);
                         $scope.pool.ajax.detail = ajaxService.getDetail($scope.dataStorage.session, [$scope.dataStorage.torrent[$scope.dataStorage.selectedIndex].id]);
                         $scope.pool.ajax.detail.promise.then(function($response) {
+                            if(!response){return;}
                             $scope.dataStorage.detail = _.merge($scope.dataStorage.detail, $response.data.arguments.torrents[0]);
-                        }
-                        // , function(reason) {
-                        //     clearInterval($scope.pool.loop.detail);
-                        //     $scope.closeAjax($scope.pool.ajax.fullDetail);
-                        //     $scope.closeAjax($scope.pool.ajax.detail);
-                        //     $scope.modal.show({
-                        //         type:"waring",
-                        //         title:"维护明细数据失败",
-                        //         content:"请检查您的网络是否顺畅，或点击重载尝试重新加载明细数据解决！",
-                        //         btnText:{
-                        //             submit:"重载"
-                        //         },
-                        //         btnType : 2,
-                        //         submitFunc : function () {
-                        //             $scope.modal.close();
-                        //             $scope.detail.loopGetDetail();
-                        //         }
-                        //     });
-                        // }
-                        );
+                        });
                     }, $scope.loopFragment.detail);
 
                     if(_.every($scope.dataStorage.detail.fileStats, ["priority", 0]) === true){
@@ -1249,173 +1057,27 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
 
                             //加载图表数据
                             if($scope.speedChart === undefined){
-                                //第一次加载图表
-                                var options = {
-                                    title: {
-                                        text: "堆叠区域图",
-                                        show:false
-                                    },
-                                    tooltip : {
-                                        show:false,
-                                        trigger: "axis"
-                                    },
-                                    legend: {
-                                        show:false
-                                    },
-                                    toolbox: {
-                                        show:false,
-                                        feature: {
-                                            saveAsImage: {}
-                                        }
-                                    },
-                                    grid: {
-                                        top:20,
-                                        left: "-14.29%",
-                                        right: 0,
-                                        bottom: 20,
-                                        containLabel: false
-                                    },
-                                    xAxis : [
-                                        {
-                                            type : "category",
-                                            splitLine:{
-                                                show:false
-                                            },
-                                            axisLine:{
-                                                lineStyle:{
-                                                    color:"#FFF"
-                                                }
-                                            },
-                                            axisTick:{
-                                                show:false
-                                            },
-                                            axisLabel:{
-                                                textStyle:{
-                                                    color: "#888"
-                                                }
-                                            },
-                                            boundaryGap : false
-                                        }
-                                    ],
-                                    yAxis : [
-                                        {
-                                            type : "value",
-                                            splitNumber:0,
-                                            minInterval:0,
-                                            silent:true,
-                                            splitLine:{
-                                                show:false
-                                            },
-                                            axisLine:{
-                                                show:false
-                                            },
-                                            axisTick:{
-                                                show:false
-                                            },
-                                            axisLabel:{
-                                                show:false
-                                            },
-                                            // max:$scope.dataStorage.global["alt-speed-down"],
-                                            min:0
-                                        }, {
-                                            type : "value",
-                                            splitNumber:0,
-                                            minInterval:0,
-                                            silent:true,
-                                            splitLine:{
-                                                show:false
-                                            },
-                                            axisLine:{
-                                                show:false
-                                            },
-                                            axisTick:{
-                                                show:false
-                                            },
-                                            axisLabel:{
-                                                show:false
-                                            },
-                                            // max:$scope.dataStorage.global["alt-speed-up"],
-                                            min:0
-                                        }
-                                    ],
-                                    series : [
-                                        {
-                                            name:"下载速度",
-                                            type:"line",
-                                            smooth:true,
-                                            showAllSymbol:false,
-                                            areaStyle: {normal: {
-                                                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                                                    {
-                                                        offset: 0, color: "rgba(71, 121, 189, 1)" // 0% 处的颜色
-                                                    }, {
-                                                        offset: 1, color: "rgba(71, 121, 189, 0)" // 100% 处的颜色
-                                                    }], false)
-                                            }},
-                                            showSymbol:true,
-                                            itemStyle:{
-                                                normal:{
-                                                    opacity:0
-                                                }
-                                            },
-                                            lineStyle :{
-                                                normal:{
-                                                    color:"#4779bd"
-                                                }
-                                            }
-                                        },
-                                        {
-                                            name:"上传速度",
-                                            type:"line",
-                                            smooth:true,
-                                            showAllSymbol:false,
-                                            areaStyle: {normal: {
-                                                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                                                    {
-                                                        offset: 0, color: "rgba(52,203,208, 1)" // 0% 处的颜色
-                                                    }, {
-                                                        offset: 1, color: "rgba(52,203,208, 0)" // 100% 处的颜色
-                                                    }], false)
-                                            }},
-                                            showSymbol:false,
-                                            itemStyle:{
-                                                normal:{
-                                                    opacity:0
-                                                }
-                                            },
-                                            lineStyle :{
-                                                normal:{
-                                                    color:"#34cbd0"
-                                                }
-                                            }
-                                        }
-                                    ]
-                                };
-                                var partOfData = $scope.initPartOfChartData($scope.detail.torrentData);
+
+                                //第一次加载图表，初始化图表设置
+                                var options = $scope.speedChartData.getDefaultOptions({"echarts":echarts});
+                                var partOfData = $scope.detail.torrentData.echartData;
                                 options = _.merge(options,partOfData);
+
                                 $scope.$apply(function(){
                                     $timeout(function(){
                                         if($scope.speedChart === undefined && $scope.detail.selectedTabIndex === 0){
                                             $scope.speedChart = echarts.init(document.getElementById("download-speed-chart"));
                                             $scope.speedChart.setOption(options);
-                                            $scope.speedChartData.xAxis = options.xAxis[0].data;
-                                            $scope.speedChartData.download = options.series[0].data;
-                                            $scope.speedChartData.upload = options.series[1].data;
-                                            $(window).resize(function () {
+                                                  $(window).resize(function () {
                                                 $scope.speedChart.resize();
                                             });
                                         }
-                                        console.log($scope.speedChartData);
                                     });
                                 });
                             }else{
                                 //切换下载任务时重新初始化图表数据
-                                var $partOfData = $scope.initPartOfChartData($scope.detail.torrentData);
-                                $scope.speedChart.setOption($partOfData);
-                                $scope.speedChartData.xAxis = $partOfData.xAxis[0].data;
-                                $scope.speedChartData.download = $partOfData.series[0].data;
-                                $scope.speedChartData.upload = $partOfData.series[1].data;
-                            }
+                                $scope.speedChart.setOption($scope.detail.torrentData.echartData);
+                              }
                         },function(){
                             console.log("echarts load fail!");
                         });
@@ -1937,6 +1599,269 @@ define(["jquery", "lodash", "transmission", "angularAMD", "mnTouch"], function($
         };
 
         $scope.init = function() {
+
+            var baseTmpUrl = "template/";
+            $scope.detailTemplateLoaded = false;
+            $scope.tmpUrl = {
+                detail: baseTmpUrl + "detail.html",
+                tips:  "modal_t",
+                settings:  "settings",
+                modal: "modal_t",
+                about: "about",
+                statics: "statics",
+                addFiles: "addFiles"
+            };
+
+            //loop pool
+            $scope.pool = {
+                "loop": {
+                    "torrent": 0,
+                    "activeTorrent": 0,
+                    "session": 0,
+                    "sessionStats":0,
+                    "detail": 0,
+                    "detailSpeedChart":0
+                },
+                "ajax": {
+                    "torrent": {},
+                    "activeTorrent": {},
+                    "detail": {},
+                    "fullDetail": {},
+                    "sessionStats":{},
+                    "session":{},
+                    "remove":{},
+                    "add":{},
+                    "pause":{}
+                }
+            };
+
+            //数据
+            $scope.dataStorage = {
+                "session": "",
+                "globalOrignal":{},
+                "global": {
+                    "alt-speed-down":0,
+                    "alt-speed-up":0,
+                    "alt-speed-time-begin":0,
+                    "alt-speed-time-end":0,
+                    "alt-speed-time-day":127
+                    // "encryption":"tolerated"
+                    // "seedRatioLimited":false,
+                    // "idle-seeding-limit-enabled":false,
+                    // "speed-limit-up-enabled":false,
+                    // "speed-limit-down-enabled":false,
+                    // "alt-speed-time-enabled":false,
+                    // "blocklist-enabled":false
+                },
+                "torrent": [],
+                "selectedIndex": -1,
+                "stats": {},
+                "allIds": [],
+                "detail": {},
+                "settings":{},
+                "port-test":false,
+                "searchText":{
+                    name:""
+                },
+                "totalSpeed":{
+                    download:0,
+                    upload:0
+                },
+                "speed-limit-times":(function () {
+                    var start = [];
+                    var min = 0;
+                    var parseTime = function (mins) {
+                        var str = "";
+                        var hour = 0;
+                        var $mins = 0;
+
+                        if (mins < 60) {
+                            str = "00:" + (mins < 10 ? "0" + mins : mins);
+                        } else {
+                            hour = parseInt(mins / 60);
+                            $mins = mins - (hour * 60);
+                            str = (hour < 10 ? "0" + hour : hour) + ":" + ($mins === 0 ? "00" : $mins);
+                        }
+
+                        return str;
+                    };
+                    for (var i = 0; i < 96; i++) {
+                        start.push({key:parseTime(min),value:min});
+                        min += 15;
+                    }
+                    return start;
+                })(),
+                "speed-limit-day":[
+                    {"key":"每天","value":127},
+                    {"key":"工作日","value":62},
+                    {"key":"周末","value":65},
+                    {"key":"星期天","value":1},
+                    {"key":"星期一","value":2},
+                    {"key":"星期二","value":4},
+                    {"key":"星期三","value":8},
+                    {"key":"星期四","value":16},
+                    {"key":"星期五","value":32},
+                    {"key":"星期六","value":64}
+                ],
+                "encryption":[
+                    {"key":"允许加密","value":"tolerated"},
+                    {"key":"喜欢加密","value":"preferred"},
+                    {"key":"需要加密","value":"required"}
+                ],
+                "addTransform":{
+                    "metainfo":[],
+                    "filename":"",
+                    "download-dir":"123123",
+                    "paused":true
+                }
+            };
+
+            $scope.loopFragment = {
+                torrent: 5000,
+                active: 8000,
+                detail: 8000,
+                session: 15000
+            };
+
+            $scope.speedChartData = {
+                getDefaultOptions:function (op) {
+                    return {
+                        title: {
+                            show:false
+                        },
+                        tooltip : {
+                            show:false
+                        },
+                        legend: {
+                            show:false
+                        },
+                        toolbox: {
+                            show:false
+                        },
+                        grid: {
+                            top:20,
+                            left: "-14.29%",
+                            right: 0,
+                            bottom: 20,
+                            containLabel: false
+                        },
+                        xAxis : [
+                            {
+                                type : "category",
+                                splitLine:{
+                                    show:false
+                                },
+                                axisLine:{
+                                    lineStyle:{
+                                        color:"#FFF"
+                                    }
+                                },
+                                axisTick:{
+                                    show:false
+                                },
+                                axisLabel:{
+                                    textStyle:{
+                                        color: "#888"
+                                    }
+                                },
+                                boundaryGap : false
+                            }
+                        ],
+                        yAxis : [
+                            {
+                                type : "value",
+                                splitNumber:0,
+                                minInterval:0,
+                                silent:true,
+                                splitLine:{
+                                    show:false
+                                },
+                                axisLine:{
+                                    show:false
+                                },
+                                axisTick:{
+                                    show:false
+                                },
+                                axisLabel:{
+                                    show:false
+                                },
+                                min:0
+                            }, {
+                                type : "value",
+                                splitNumber:0,
+                                minInterval:0,
+                                silent:true,
+                                splitLine:{
+                                    show:false
+                                },
+                                axisLine:{
+                                    show:false
+                                },
+                                axisTick:{
+                                    show:false
+                                },
+                                axisLabel:{
+                                    show:false
+                                },
+                                min:0
+                            }
+                        ],
+                        series : [
+                            {
+                                name:"下载速度",
+                                type:"line",
+                                smooth:true,
+                                showAllSymbol:false,
+                                areaStyle: {normal: {
+                                    color: new op.echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                        {
+                                            offset: 0, color: "rgba(71, 121, 189, 1)" // 0% 处的颜色
+                                        }, {
+                                            offset: 1, color: "rgba(71, 121, 189, 0)" // 100% 处的颜色
+                                        }], false)
+                                }},
+                                showSymbol:true,
+                                itemStyle:{
+                                    normal:{
+                                        opacity:0
+                                    }
+                                },
+                                lineStyle :{
+                                    normal:{
+                                        color:"#4779bd"
+                                    }
+                                }
+                            },
+                            {
+                                name:"上传速度",
+                                type:"line",
+                                smooth:true,
+                                showAllSymbol:false,
+                                areaStyle: {normal: {
+                                    color: new op.echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                        {
+                                            offset: 0, color: "rgba(52,203,208, 1)" // 0% 处的颜色
+                                        }, {
+                                            offset: 1, color: "rgba(52,203,208, 0)" // 100% 处的颜色
+                                        }], false)
+                                }},
+                                showSymbol:false,
+                                itemStyle:{
+                                    normal:{
+                                        opacity:0
+                                    }
+                                },
+                                lineStyle :{
+                                    normal:{
+                                        color:"#34cbd0"
+                                    }
+                                }
+                            }
+                        ]
+                    };
+                }
+            };
+
             var detailTemplateLoad = $scope.$watch("detailTemplateLoaded",function (newValue,oldValue) {
                 if(newValue === true && oldValue === false){
                     $scope.detail.compileTemplate();

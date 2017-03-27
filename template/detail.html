@@ -43,7 +43,7 @@
                 </tr>
                 <tr>
                     <th>上一次活跃</th>
-                    <td>{{getFullDate(dataStorage.detail.activityDate * 1000)}}</td>
+                    <td>{{dataStorage.detail.activityDate === 0?"暂无":getFullDate(dataStorage.detail.activityDate * 1000)}}</td>
                 </tr>
                 <tr>
                     <th>错误</th>
@@ -119,15 +119,15 @@
                     <i>等级{{item.tier}}</i>
                 </h3>
                 <div>
-                    <i>做种者：{{item.seederCount}}</i>
+                    <i>做种者：{{item.seederCount === -1?"暂无":item.seederCount}}</i>
                     <span>最近一次发布：{{getFullDate(item.lastAnnounceTime * 1000)}}</span>
                 </div>
                 <div>
-                    <i>下载者：{{item.leecherCount}}</i>
+                    <i>下载者：{{item.leecherCount === -1?"暂无":item.leecherCount}}</i>
                     <span>　下一次发布：{{getFullDate(item.nextAnnounceTime * 1000)}}</span>
                 </div>
                 <div>
-                    <i>下载次数：{{item.downloadCount}}</i>
+                    <i>下载次数：{{item.downloadCount === -1?"暂无":item.downloadCount}}</i>
                     <span>最近一次削刮：{{getFullDate(item.lastScrapeTime * 1000)}}</span>
                 </div>
             </li>

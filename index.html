@@ -45,10 +45,10 @@
             <span class="icon-pause-light" ng-class="{'disabled':dataStorage.selectedIndex === '' || allLoaded === false}" ng-click="pauseTransform([dataStorage.torrent[dataStorage.selectedIndex].id])">
             <i>暂停</i>
         </span>
-        <span class="icon-start-all-light" ng-class="{'disabled':dataStorage.torrent.length === 0 || allLoaded === false}" ng-click="startTransform(dataStorage.ids)">
+        <span class="icon-start-all-light" ng-class="{'disabled':dataStorage.torrent.length === 0 || allLoaded === false}" ng-click="startTransform(dataStorage.allIds)">
             <i>开始所有任务</i>
         </span>
-        <span class="icon-pause-all-light" ng-class="{'disabled':dataStorage.torrent.length === 0 || allLoaded === false}" ng-click="pauseTransform(dataStorage.ids)">
+        <span class="icon-pause-all-light" ng-class="{'disabled':dataStorage.torrent.length === 0 || allLoaded === false}" ng-click="pauseTransform(dataStorage.allIds)">
             <i>暂停所有任务</i>
         </span>
     </div>
